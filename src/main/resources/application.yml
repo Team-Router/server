@@ -1,12 +1,15 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${ROUTER_MYSQL_URL}
-    username: ${ROUTER_MYSQL_USERNAME}
-    password: ${ROUTER_MYSQL_PASSWORD}
+    url: jdbc:mysql://localhost:3306/re-cycle
+    username: root
+    password: root
+  #    url: ${ROUTER_MYSQL_URL}
+  #    username: ${ROUTER_MYSQL_USERNAME}
+  #    password: ${ROUTER_MYSQL_PASSWORD}
   jpa:
     properties:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update

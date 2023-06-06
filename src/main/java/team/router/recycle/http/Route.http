@@ -3,8 +3,8 @@ POST http://localhost:8080/route/cycle
 Content-Type: application/json
 
 {
-  "startLatitude": "127.355106",
-  "startLongitude": "36.365438",
-  "endLatitude": "127.294869",
-  "endLongitude": "36.345368"
+  "startLatitude": "37.4864406",
+  "startLongitude": "127.1030211",
+  "endLatitude": "37.553001",
+  "endLongitude": "126.924558"
 }

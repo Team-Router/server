@@ -14,12 +14,5 @@ public class RouteRequest {
         private String startLongitude;
         private String endLatitude;
         private String endLongitude;
-
-        public CycleRequest(String startLatitude, String startLongitude, String endLatitude, String endLongitude) {
-            this.startLatitude = startLatitude;
-            this.startLongitude = startLongitude;
-            this.endLatitude = endLatitude;
-            this.endLongitude = endLongitude;
-        }
     }
 }

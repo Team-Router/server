@@ -1,9 +1,8 @@
 package team.router.recycle.domain.station;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 @Service
-@Slf4j
 public class StationService {
 
     private final Response response;
@@ -40,23 +38,20 @@ public class StationService {
                 BufferedReader br = new BufferedReader(new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8));
                 String result = br.readLine();
                 ObjectMapper objectMapper = new ObjectMapper();
-                objectMapper.readTree(result).get("bikeStationMaster").get("row").forEach(station -> {
-                    try {
-                        Station newStation = Station.builder()
-                                .stationId(station.get("LENDPLACE_ID").asText())
-                                .stationAddress1(station.get("STATN_ADDR1").asText())
-                                .stationAddress2(station.get("STATN_ADDR2").asText())
-                                .stationLatitude(station.get("STATN_LAT").asDouble())
-                                .stationLongitude(station.get("STATN_LNT").asDouble())
-                                .build();
-                        stationRepository.save(newStation);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                JsonNode jsonNode = objectMapper.readTree(result).get("bikeStationMaster").get("row");
+                for (JsonNode station : jsonNode) {
+                    if ("0.0".equals(station.get("STATN_LAT").asText()) || "0.0".equals(station.get("STATN_LNT").asText())) {
+                        continue;
                     }
-                });
-
-
-                // latitude, longitude "" 거르기
+                    Station newStation = Station.builder()
+                            .stationId(station.get("LENDPLACE_ID").asText())
+                            .stationAddress1(station.get("STATN_ADDR1").asText())
+                            .stationAddress2(station.get("STATN_ADDR2").asText())
+                            .stationLatitude(station.get("STATN_LAT").asDouble())
+                            .stationLongitude(station.get("STATN_LNT").asDouble())
+                            .build();
+                    stationRepository.save(newStation);
+                }
             } catch (Exception e) {
                 return response.fail(String.valueOf(e), HttpStatus.BAD_REQUEST);
             }
