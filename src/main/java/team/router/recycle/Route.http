@@ -1,0 +1,10 @@
+###
+POST http://localhost:8080/route/cycle
+Content-Type: application/json
+
+{
+  "startLatitude": "127.355106",
+  "startLongitude": "36.365438",
+  "endLatitude": "127.294869",
+  "endLongitude": "36.345368"
+}
