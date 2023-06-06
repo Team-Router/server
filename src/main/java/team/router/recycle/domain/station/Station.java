@@ -18,7 +18,9 @@ public class Station {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String stationId;
+    private String stationNumber;
+    private String stationName;
+    private String stationNumberName;
     private String stationAddress1;
     private String stationAddress2;
     private Double stationLatitude;

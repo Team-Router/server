@@ -29,7 +29,8 @@ public class StationService {
     public ResponseEntity<?> initStation() throws IOException {
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
         String API_KEY = "/5473736b67687975343450566e4455";
-        String MASTER_PATH = "/json/bikeStationMaster";
+//        String MASTER_PATH = "/json/bikeStationMaster";
+        String MASTER_PATH = "/json/tbCycleStationInfo";
         String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000", "/3001/4000"};
 
         for (String target : TARGET_LIST) {
@@ -38,17 +39,19 @@ public class StationService {
                 BufferedReader br = new BufferedReader(new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8));
                 String result = br.readLine();
                 ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode = objectMapper.readTree(result).get("bikeStationMaster").get("row");
+                JsonNode jsonNode = objectMapper.readTree(result).get("stationInfo").get("row");
                 for (JsonNode station : jsonNode) {
-                    if ("0.0".equals(station.get("STATN_LAT").asText()) || "0.0".equals(station.get("STATN_LNT").asText())) {
+                    if ("0.0".equals(station.get("STA_LAT").asText()) || "0.0".equals(station.get("STA_LONG").asText())) {
                         continue;
                     }
                     Station newStation = Station.builder()
-                            .stationId(station.get("LENDPLACE_ID").asText())
-                            .stationAddress1(station.get("STATN_ADDR1").asText())
-                            .stationAddress2(station.get("STATN_ADDR2").asText())
-                            .stationLatitude(station.get("STATN_LAT").asDouble())
-                            .stationLongitude(station.get("STATN_LNT").asDouble())
+                            .stationNumber(station.get("RENT_NO").asText())
+                            .stationName(station.get("RENT_NM").asText())
+                            .stationNumberName(station.get("RENT_ID_NM").asText())
+                            .stationAddress1(station.get("STA_ADD1").asText())
+                            .stationAddress2(station.get("STA_ADD2").asText())
+                            .stationLatitude(station.get("STA_LAT").asDouble())
+                            .stationLongitude(station.get("STA_LONG").asDouble())
                             .build();
                     stationRepository.save(newStation);
                 }

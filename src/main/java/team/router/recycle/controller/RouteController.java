@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.router.recycle.domain.route.RouteService;
 
+import java.net.MalformedURLException;
+
 @RestController
 @RequestMapping("/route")
 public class RouteController {
@@ -18,7 +20,7 @@ public class RouteController {
     }
 
     @PostMapping("/cycle")
-    public ResponseEntity<?> cycleV1(@RequestBody CycleRequest cycleRequest) {
+    public ResponseEntity<?> cycleV1(@RequestBody CycleRequest cycleRequest) throws MalformedURLException {
         return routeService.cycleV1(cycleRequest);
     }
 }
