@@ -1,4 +1,4 @@
-package team.router.recycle;
+package team.router.recycle.domain.route;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

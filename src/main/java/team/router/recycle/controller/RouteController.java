@@ -1,6 +1,6 @@
-package team.router.recycle;
+package team.router.recycle.controller;
 
-import team.router.recycle.RouteRequest.CycleRequest;
+import team.router.recycle.domain.route.RouteRequest.CycleRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
