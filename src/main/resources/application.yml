@@ -1,12 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/re-cycle
-    username: root
-    password: Aldksgo93@@
-  #    url: ${ROUTER_MYSQL_URL}
-  #    username: ${ROUTER_MYSQL_USERNAME}
-  #    password: ${ROUTER_MYSQL_PASSWORD}
+    url: ${ROUTER_MYSQL_URL}
+    username: ${ROUTER_MYSQL_USERNAME}
+    password: ${ROUTER_MYSQL_PASSWORD}
   jpa:
     properties:
       hibernate:
@@ -15,6 +12,5 @@ spring:
       ddl-auto: update
   data:
     redis:
-      host: localhost
-#      host: host.docker.internal
-      port: 6379
+      host: ${ROUTER_REDIS_HOST}
+      port: ${ROUTER_REDIS_PORT}
