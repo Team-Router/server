@@ -3,7 +3,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/re-cycle
     username: root
-    password: root
+    password: Aldksgo93@@
   #    url: ${ROUTER_MYSQL_URL}
   #    username: ${ROUTER_MYSQL_USERNAME}
   #    password: ${ROUTER_MYSQL_PASSWORD}
@@ -13,3 +13,8 @@ spring:
         format_sql: true
     hibernate:
       ddl-auto: update
+  data:
+    redis:
+      host: localhost
+#      host: host.docker.internal
+      port: 6379
