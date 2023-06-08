@@ -11,15 +11,16 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${ROUTER_MYSQL_URL}
-    username: ${ROUTER_MYSQL_USERNAME}
-    password: ${ROUTER_MYSQL_PASSWORD}
+    url: jdbc:mysql://223.130.134.8:3306/router?serverTimezone=Asia/Seoul
+    username: root
+    password: router
   jpa:
     properties:
       hibernate:
         format_sql: true
     hibernate:
       ddl-auto: create
+
   security:
     oauth2:
       client:
