@@ -8,3 +8,9 @@ Content-Type: application/json
   "endLatitude": "37.553001",
   "endLongitude": "126.924558"
 }
+
+###
+POST http://localhost:8080/route/station
+
+###
+GET http://localhost:8080/route/station

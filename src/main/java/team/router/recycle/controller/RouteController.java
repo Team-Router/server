@@ -1,11 +1,8 @@
 package team.router.recycle.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import team.router.recycle.domain.route.RouteRequest.CycleRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import team.router.recycle.domain.route.RouteService;
 
 import java.net.MalformedURLException;
@@ -22,5 +19,15 @@ public class RouteController {
     @PostMapping("/cycle")
     public ResponseEntity<?> cycleV1(@RequestBody CycleRequest cycleRequest) throws MalformedURLException {
         return routeService.cycleV1(cycleRequest);
+    }
+
+    @PostMapping("/station")
+    public ResponseEntity<?> updateStation() throws MalformedURLException {
+        return routeService.updateStation();
+    }
+
+    @GetMapping("/station")
+    public ResponseEntity<?> getStation() {
+        return routeService.getStation();
     }
 }
