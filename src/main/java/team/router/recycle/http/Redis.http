@@ -1,0 +1,11 @@
+### set
+POST http://localhost:8080/redis
+Content-Type: application/json
+
+{
+  "key": "key",
+  "value": "value"
+}
+
+### get
+GET http://localhost:8080/redis/key

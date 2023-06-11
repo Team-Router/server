@@ -6,28 +6,20 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-
-
+      
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://223.130.134.8:3306/router?serverTimezone=Asia/Seoul
-    username: root
-    password: router
+    url: ${ROUTER_MYSQL_URL}
+    username: ${ROUTER_MYSQL_USERNAME}
+    password: ${ROUTER_MYSQL_PASSWORD}
   jpa:
     properties:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: create
-
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_OAUTH_CLIENT_ID}
-            client-secret: ${GOOGLE_OAUTH_PASSWORD}
-            scope:
-              - profile
-              - email
+      ddl-auto: update
+  data:
+    redis:
+      host: ${ROUTER_REDIS_HOST}
+      port: ${ROUTER_REDIS_PORT}

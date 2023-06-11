@@ -1,4 +1,4 @@
-package team.router.recycle;
+package team.router.recycle.controller;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
