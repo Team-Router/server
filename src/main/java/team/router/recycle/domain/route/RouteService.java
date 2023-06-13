@@ -2,6 +2,7 @@ package team.router.recycle.domain.route;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +17,8 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
@@ -28,6 +31,12 @@ import team.router.recycle.domain.station.StationRepository;
 
 @Service
 public class RouteService {
+
+    @Value("${SEOUL_API_KEY}")
+    private String SEOUL_API_KEY;
+
+    @Value("${MAPBOX_API_KEY}")
+    private String MAPBOX_API_KEY;
 
     private final Response response;
     private final StationRepository stationRepository;
@@ -58,7 +67,7 @@ public class RouteService {
 
     public ResponseEntity<?> updateStation() throws MalformedURLException {
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
-        String API_KEY = "/5473736b67687975343450566e4455";
+        String API_KEY = SEOUL_API_KEY;
         String BIKE_PATH = "/json/bikeList";
         String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
@@ -138,7 +147,7 @@ public class RouteService {
                 "/" + endStation.getStationLongitude() + "," + endStation.getStationLatitude() + ";" + endLongitude
                         + "," + endLatitude
         };
-        String ACCESS_TOKEN = "&access_token=pk.eyJ1IjoiaHl1bnNlb2tjaGVvbmciLCJhIjoiY2xpZHZvc3ptMDIweDNqbzA4b2ljeGhjMiJ9.0iw5JNcWKW4cbFAezMrHSw";
+        String ACCESS_TOKEN = MAPBOX_API_KEY;
 
         for (int i = 0; i < 3; i++) {
             URL MASTER_URL = new URL(

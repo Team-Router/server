@@ -3,6 +3,7 @@ package team.router.recycle.domain.station;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,9 @@ import team.router.recycle.Response;
 
 @Service
 public class StationService {
+
+    @Value("${SEOUL_API_KEY}")
+    private String SEOUL_API_KEY;
 
     private final Response response;
     private final StationRepository stationRepository;
@@ -33,7 +39,7 @@ public class StationService {
 
     public ResponseEntity<?> initStation() {
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
-        String API_KEY = "/5473736b67687975343450566e4455";
+        String API_KEY = SEOUL_API_KEY;
         String MASTER_PATH = "/json/tbCycleStationInfo";
         String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000", "/3001/4000"};
 

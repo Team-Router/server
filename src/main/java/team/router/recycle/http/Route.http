@@ -1,5 +1,5 @@
 ###
-POST http://localhost:8080/route/cycle
+POST {{context_path}}/route/cycle
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/route/station
+POST {{context_path}}/route/station
 
 ###
-GET http://localhost:8080/route/station
+GET {{context_path}}/route/station
