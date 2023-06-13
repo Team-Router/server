@@ -46,13 +46,13 @@ public class StationService {
             } catch (MalformedURLException e) {
                 return response.fail("Invalid URL", HttpStatus.BAD_REQUEST);
             }
-
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8))) {
                     String result = br.readLine();
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(result).get("stationInfo").get("row");
+                    List<Station> stationList = new ArrayList<>();
                     for (JsonNode station : jsonNode) {
                         if (station.get("STA_LAT").asText().startsWith("0") || station.get("STA_LONG").asText()
                                 .startsWith("0")) {
@@ -67,8 +67,9 @@ public class StationService {
                                 .stationLatitude(station.get("STA_LAT").asDouble())
                                 .stationLongitude(station.get("STA_LONG").asDouble())
                                 .build();
-                        stationRepository.save(newStation);
+                        stationList.add(newStation);
                     }
+                    stationRepository.saveAll(stationList);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
