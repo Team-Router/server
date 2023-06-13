@@ -32,7 +32,7 @@ public class StationService {
     public StationService(Response response, StationRepository stationRepository) {
         this.response = response;
         this.stationRepository = stationRepository;
-        this.executorService = Executors.newFixedThreadPool(4);
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     public ResponseEntity<?> initStation() {

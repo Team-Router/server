@@ -46,7 +46,7 @@ public class RouteService {
         this.response = response;
         this.stationRepository = stationRepository;
         this.redisTemplate = redisTemplate;
-        this.executorService = Executors.newFixedThreadPool(3);
+        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
     public ResponseEntity<?> getStation() {
