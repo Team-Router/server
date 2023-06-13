@@ -3,7 +3,6 @@ package team.router.recycle.domain.station;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,7 +50,7 @@ public class StationService {
             } catch (MalformedURLException e) {
                 return response.fail("Invalid URL", HttpStatus.BAD_REQUEST);
             }
-            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+            futures.add(CompletableFuture.runAsync(() -> {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8))) {
                     String result = br.readLine();
@@ -79,8 +77,7 @@ public class StationService {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }, executorService);
-            futures.add(future);
+            }, executorService));
         }
 
         CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
