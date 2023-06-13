@@ -142,6 +142,7 @@ public class RouteService {
         String WALKING_PROFILE = "/mapbox/walking";
         String[] PROFILE = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
         String GEOJSON = "?geometries=geojson";
+        String ACCESS = "&access_token=";
         String LANGUAGE = "&language=ko";
         String STEPS = "&steps=true";
         String[] COORDINATES = {
@@ -156,7 +157,7 @@ public class RouteService {
 
         for (int i = 0; i < 3; i++) {
             URL MASTER_URL = new URL(
-                    BASE_URL + PROFILE[i] + COORDINATES[i] + GEOJSON + ACCESS_TOKEN + LANGUAGE + STEPS);
+                    BASE_URL + PROFILE[i] + COORDINATES[i] + GEOJSON + ACCESS + ACCESS_TOKEN + LANGUAGE + STEPS);
             try {
                 BufferedReader br = new BufferedReader(
                         new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8));
