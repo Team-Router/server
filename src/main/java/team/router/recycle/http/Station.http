@@ -1,2 +1,2 @@
 ###
-POST http://localhost:8080/station/init
+POST {{context_path}}/station/init
