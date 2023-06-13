@@ -2,7 +2,6 @@ package team.router.recycle.domain.route;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +16,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -65,7 +63,7 @@ public class RouteService {
         return response.success(stations);
     }
 
-    public ResponseEntity<?> updateStation() throws MalformedURLException {
+    public ResponseEntity<?> updateStation() {
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
         String API_KEY = SEOUL_API_KEY;
         String BIKE_PATH = "/json/bikeList";
@@ -75,18 +73,25 @@ public class RouteService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         for (String target : TARGET_LIST) {
-            URL MASTER_URL = new URL(BASE_URL + API_KEY + BIKE_PATH + target);
+            URL MASTER_URL;
+            try {
+                MASTER_URL = new URL(BASE_URL + API_KEY + BIKE_PATH + target);
+            } catch (MalformedURLException e) {
+                return response.fail("Malformed URL", HttpStatus.BAD_REQUEST);
+            }
             futures.add(CompletableFuture.runAsync(() -> {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8))) {
                     String result = br.readLine();
                     ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(result).get("rentBikeStatus").get("row");
+                    Map<String, String> stations = new HashMap<>();
                     for (JsonNode station : jsonNode) {
                         String stationId = station.get("stationId").asText();
                         String parkingBikeTotCnt = station.get("parkingBikeTotCnt").asText();
-                        valueOperations.set(stationId, parkingBikeTotCnt);
+                        stations.put(stationId, parkingBikeTotCnt);
                     }
+                    valueOperations.multiSet(stations);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
