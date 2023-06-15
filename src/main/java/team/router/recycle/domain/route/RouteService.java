@@ -2,30 +2,31 @@ package team.router.recycle.domain.route;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team.router.recycle.Response;
-import team.router.recycle.domain.route.RouteRequest.CycleRequest;
+import team.router.recycle.domain.route.RouteRequest.getDirectionRequest;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationRepository;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class RouteService {
@@ -50,22 +51,30 @@ public class RouteService {
     }
 
     public ResponseEntity<?> getStation() {
-        Set<String> keys = redisTemplate.keys("*");
-        if (keys == null) {
-            return response.fail("No station data", HttpStatus.BAD_REQUEST);
-        }
+        try (Cursor<byte[]> cursor = Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection().scan(ScanOptions.scanOptions().match("*").build())) {
+            Map<String, String> stationData = new HashMap<>();
+            ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
 
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        Map<String, String> stations = new HashMap<>();
-        for (String key : keys) {
-            stations.put(key, valueOperations.get(key));
+            while (cursor.hasNext()) {
+                byte[] keyBytes = cursor.next();
+                String key = new String(keyBytes, StandardCharsets.UTF_8);
+                String value = valueOperations.get(key);
+                stationData.put(key, value);
+            }
+
+            if (stationData.isEmpty()) {
+                return response.fail("No station data", HttpStatus.BAD_REQUEST);
+            }
+            return response.success(stationData);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return response.fail("Failed to retrieve station data", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return response.success(stations);
     }
+
 
     public ResponseEntity<?> updateStation() {
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
-        String API_KEY = SEOUL_API_KEY;
         String BIKE_PATH = "/json/bikeList";
         String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
@@ -73,66 +82,46 @@ public class RouteService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         for (String target : TARGET_LIST) {
-            URL MASTER_URL;
             try {
-                MASTER_URL = new URL(BASE_URL + API_KEY + BIKE_PATH + target);
+                URL MASTER_URL = new URL(BASE_URL + SEOUL_API_KEY + BIKE_PATH + target);
+                futures.add(CompletableFuture.runAsync(() -> {
+                    try (BufferedReader br = new BufferedReader(
+                            new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8))) {
+                        String result = br.readLine();
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        JsonNode jsonNode = objectMapper.readTree(result).get("rentBikeStatus").get("row");
+                        Map<String, String> stations = new HashMap<>();
+                        for (JsonNode station : jsonNode) {
+                            String stationId = station.get("stationId").asText();
+                            String parkingBikeTotCnt = station.get("parkingBikeTotCnt").asText();
+                            stations.put(stationId, parkingBikeTotCnt);
+                        }
+                        valueOperations.multiSet(stations);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }, executorService));
             } catch (MalformedURLException e) {
                 return response.fail("Malformed URL", HttpStatus.BAD_REQUEST);
             }
-            futures.add(CompletableFuture.runAsync(() -> {
-                try (BufferedReader br = new BufferedReader(
-                        new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8))) {
-                    String result = br.readLine();
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    JsonNode jsonNode = objectMapper.readTree(result).get("rentBikeStatus").get("row");
-                    Map<String, String> stations = new HashMap<>();
-                    for (JsonNode station : jsonNode) {
-                        String stationId = station.get("stationId").asText();
-                        String parkingBikeTotCnt = station.get("parkingBikeTotCnt").asText();
-                        stations.put(stationId, parkingBikeTotCnt);
-                    }
-                    valueOperations.multiSet(stations);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }, executorService));
         }
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
-        return response.success("update station success");
+        try {
+            allFutures.get();
+            return response.success("Update station success");
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return response.fail("Update station failed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    public ResponseEntity<?> cycleV1(CycleRequest cycleRequest) throws MalformedURLException {
-        double startLatitude = Double.parseDouble(cycleRequest.getStartLatitude());
-        double startLongitude = Double.parseDouble(cycleRequest.getStartLongitude());
-        double endLatitude = Double.parseDouble(cycleRequest.getEndLatitude());
-        double endLongitude = Double.parseDouble(cycleRequest.getEndLongitude());
-
-//        double startNearDistance = Double.MAX_VALUE;
-//        long startNearStationId = 0;
-//        double endNearDistance = Double.MAX_VALUE;
-//        long endNearStationId = 0;
-//
-//        List<Station> allStations = stationRepository.findAll();
-//        for (Station station : allStations) {
-//            double latitude = station.getStationLatitude();
-//            double longitude = station.getStationLongitude();
-//
-//            double startDistance = Math.abs(startLatitude - latitude) + Math.abs(startLongitude - longitude);
-//            double endDistance = Math.abs(endLatitude - latitude) + Math.abs(endLongitude - longitude);
-//
-//            if (startDistance < startNearDistance) {
-//                startNearDistance = startDistance;
-//                startNearStationId = station.getId();
-//            }
-//            if (endDistance < endNearDistance) {
-//                endNearDistance = endDistance;
-//                endNearStationId = station.getId();
-//            }
-//        }
-//        Station startStation = stationRepository.findById(startNearStationId).get();
-//        Station endStation = stationRepository.findById(endNearStationId).get();
+    public ResponseEntity<?> cycleV1(getDirectionRequest getDirectionRequest) {
+        double startLatitude = Double.parseDouble(getDirectionRequest.getStartLatitude());
+        double startLongitude = Double.parseDouble(getDirectionRequest.getStartLongitude());
+        double endLatitude = Double.parseDouble(getDirectionRequest.getEndLatitude());
+        double endLongitude = Double.parseDouble(getDirectionRequest.getEndLongitude());
 
         Station startStation = stationRepository.findNearestStation(startLatitude, startLongitude);
         Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude);
@@ -143,8 +132,6 @@ public class RouteService {
         String[] PROFILE = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
         String GEOJSON = "?geometries=geojson";
         String ACCESS = "&access_token=";
-        String LANGUAGE = "&language=ko";
-        String STEPS = "&steps=true";
         String[] COORDINATES = {
                 "/" + startLongitude + "," + startLatitude + ";" + startStation.getStationLongitude() + ","
                         + startStation.getStationLatitude(),
@@ -153,29 +140,35 @@ public class RouteService {
                 "/" + endStation.getStationLongitude() + "," + endStation.getStationLatitude() + ";" + endLongitude
                         + "," + endLatitude
         };
-        String ACCESS_TOKEN = MAPBOX_API_KEY;
+        List<RouteResponse.getDirectionResponse> getDirectionResponses = new ArrayList<>();
 
-        for (int i = 0; i < 3; i++) {
-            URL MASTER_URL = new URL(
-                    BASE_URL + PROFILE[i] + COORDINATES[i] + GEOJSON + ACCESS + ACCESS_TOKEN + LANGUAGE + STEPS);
+        for (int i = 0; i < PROFILE.length; i++) {
+            URL url;
             try {
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(MASTER_URL.openStream(), StandardCharsets.UTF_8));
+                url = new URL(BASE_URL + PROFILE[i] + COORDINATES[i] + GEOJSON + ACCESS + MAPBOX_API_KEY);
+            } catch (MalformedURLException e) {
+                return response.fail("Malformed URL", HttpStatus.BAD_REQUEST);
+            }
+
+            try (InputStream inputStream = url.openStream()) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
                 String result = br.readLine();
                 ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode = objectMapper.readTree(result).get("routes");
-                JsonNode jsonNode1 = objectMapper.readTree(result).get("waypoints");
-//                for (JsonNode node : jsonNode1) {
-//                    System.out.println(node.get("location").toString());
-//                }
-//                for (JsonNode node : jsonNode) {
-//                    System.out.println(node.get("geometry").toString());
-//                }
-                // TODO response 만들기
-            } catch (Exception e) {
-                return response.fail(String.valueOf(e), HttpStatus.BAD_REQUEST);
+                JsonNode jsonNode = objectMapper.readTree(result).get("routes").get(0);
+                RouteResponse.getDirectionResponse getDirectionResponse = new RouteResponse.getDirectionResponse();
+                getDirectionResponse.setRoutingProfile(RoutingProfile.valueOf(jsonNode.get("weight_name").asText()));
+                getDirectionResponse.setDistance(new Distance(jsonNode.get("distance").asInt()));
+                getDirectionResponse.setDuration(new Duration(jsonNode.get("duration").asInt()));
+                for (JsonNode coordinate : jsonNode.get("geometry").get("coordinates")) {
+                    getDirectionResponse.getLocations().add(new Location(coordinate.get(1).asDouble(),
+                            coordinate.get(0).asDouble()));
+                }
+                getDirectionResponses.add(getDirectionResponse);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
-        return response.success();
+
+        return response.success(getDirectionResponses);
     }
 }
