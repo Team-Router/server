@@ -5,11 +5,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class RouteRequest {
-
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class CycleRequest {
+    public static class getDirectionRequest {
         private String startLatitude;
         private String startLongitude;
         private String endLatitude;
