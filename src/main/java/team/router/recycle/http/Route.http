@@ -1,5 +1,15 @@
+### 전체 대여소의 실시간 자전거 대수를 반환합니다.
+GET {{context_path}}/route/station
+
+### 대여소의 실시간 자전거 대수를 레디스에 업데이트합니다.
+POST {{context_path}}/route/station
+
 ###
-POST http://localhost:8080/route/cycle
+
+### 출발지와 도착지의 좌표를 기반으로 대여소 2곳을 포함한 경로를 안내합니다.
+### Pedestrian: 도보, Cyclability: 자전거
+### 도보, 자전거, 도보 순으로 안내합니다.
+POST {{context_path}}/route/cycle
 Content-Type: application/json
 
 {
@@ -9,8 +19,4 @@ Content-Type: application/json
   "endLongitude": "126.924558"
 }
 
-###
-POST http://localhost:8080/route/station
 
-###
-GET http://localhost:8080/route/station
