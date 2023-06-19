@@ -1,6 +1,7 @@
 package team.router.recycle.domain.route;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ public class RouteResponse {
 
     @Getter
     @Setter
+    @JsonDeserialize(using = GetDirectionResponseDeserializer.class)
     public static class getDirectionResponse {
         private RoutingProfile routingProfile;
         private Duration duration;
@@ -19,12 +21,12 @@ public class RouteResponse {
 
         @JsonGetter("duration")
         public int getDuration() {
-            return duration.getSeconds();
+            return duration.seconds();
         }
 
         @JsonGetter("distance")
         public int getDistance() {
-            return distance.getMeters();
+            return distance.meters();
         }
     }
 }
