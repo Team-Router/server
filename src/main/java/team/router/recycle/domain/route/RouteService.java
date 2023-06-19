@@ -2,6 +2,7 @@ package team.router.recycle.domain.route;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,13 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team.router.recycle.Response;
-import team.router.recycle.domain.route.RouteRequest.getDirectionRequest;
+import team.router.recycle.domain.route.RouteRequest.GetDirectionRequest;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationRepository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -33,37 +33,41 @@ public class RouteService {
 
     @Value("${SEOUL_API_KEY}")
     private String SEOUL_API_KEY;
-
-    @Value("${MAPBOX_API_KEY}")
-    private String MAPBOX_API_KEY;
-
     private final Response response;
     private final StationRepository stationRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final ExecutorService executorService;
+    private final RouteClient routeClient;
+    private final ObjectMapper objectMapper;
 
     public RouteService(Response response, StationRepository stationRepository,
-                        RedisTemplate<String, String> redisTemplate) {
+                        RedisTemplate<String, String> redisTemplate, RouteClient routeClient, ObjectMapper objectMapper) {
         this.response = response;
         this.stationRepository = stationRepository;
         this.redisTemplate = redisTemplate;
+        this.routeClient = routeClient;
+        this.objectMapper = objectMapper;
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        registerCustomModule();
+    }
+
+    private void registerCustomModule() {
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(RouteResponse.getDirectionResponse.class, new GetDirectionResponseDeserializer());
+        objectMapper.registerModule(module);
     }
 
     public ResponseEntity<?> getStation() {
-        try (Cursor<byte[]> cursor = Objects.requireNonNull(redisTemplate.getConnectionFactory()).getConnection().scan(ScanOptions.scanOptions().match("*").build())) {
+        try {
             Map<String, String> stationData = new HashMap<>();
             ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-
-            while (cursor.hasNext()) {
-                byte[] keyBytes = cursor.next();
-                String key = new String(keyBytes, StandardCharsets.UTF_8);
-                String value = valueOperations.get(key);
-                stationData.put(key, value);
-            }
-
-            if (stationData.isEmpty()) {
+            Set<String> keys = redisTemplate.keys("*");
+            if (keys.isEmpty()) {
                 return response.fail("No station data", HttpStatus.BAD_REQUEST);
+            }
+            for (String key : keys) {
+                stationData.put(key, valueOperations.get(key));
             }
             return response.success(stationData);
         } catch (Exception e) {
@@ -117,21 +121,19 @@ public class RouteService {
         }
     }
 
-    public ResponseEntity<?> cycleV1(getDirectionRequest getDirectionRequest) {
-        double startLatitude = Double.parseDouble(getDirectionRequest.getStartLatitude());
-        double startLongitude = Double.parseDouble(getDirectionRequest.getStartLongitude());
-        double endLatitude = Double.parseDouble(getDirectionRequest.getEndLatitude());
-        double endLongitude = Double.parseDouble(getDirectionRequest.getEndLongitude());
+    public ResponseEntity<?> getDirection(GetDirectionRequest getDirectionRequest) {
+        double startLatitude = getDirectionRequest.getStartLocation().latitude();
+        double startLongitude = getDirectionRequest.getStartLocation().longitude();
+        double endLatitude = getDirectionRequest.getEndLocation().latitude();
+        double endLongitude = getDirectionRequest.getEndLocation().longitude();
 
         Station startStation = stationRepository.findNearestStation(startLatitude, startLongitude);
         Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude);
 
-        String BASE_URL = "https://api.mapbox.com/directions/v5";
-        String CYCLE_PROFILE = "/mapbox/cycling";
-        String WALKING_PROFILE = "/mapbox/walking";
+        String CYCLE_PROFILE = "cycling";
+        String WALKING_PROFILE = "walking";
         String[] PROFILE = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
-        String GEOJSON = "?geometries=geojson";
-        String ACCESS = "&access_token=";
+
         String[] COORDINATES = {
                 "/" + startLongitude + "," + startLatitude + ";" + startStation.getStationLongitude() + ","
                         + startStation.getStationLatitude(),
@@ -140,30 +142,14 @@ public class RouteService {
                 "/" + endStation.getStationLongitude() + "," + endStation.getStationLatitude() + ";" + endLongitude
                         + "," + endLatitude
         };
+
         List<RouteResponse.getDirectionResponse> getDirectionResponses = new ArrayList<>();
 
         for (int i = 0; i < PROFILE.length; i++) {
-            URL url;
             try {
-                url = new URL(BASE_URL + PROFILE[i] + COORDINATES[i] + GEOJSON + ACCESS + MAPBOX_API_KEY);
-            } catch (MalformedURLException e) {
-                return response.fail("Malformed URL", HttpStatus.BAD_REQUEST);
-            }
-
-            try (InputStream inputStream = url.openStream()) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-                String result = br.readLine();
-                ObjectMapper objectMapper = new ObjectMapper();
-                JsonNode jsonNode = objectMapper.readTree(result).get("routes").get(0);
-                RouteResponse.getDirectionResponse getDirectionResponse = new RouteResponse.getDirectionResponse();
-                getDirectionResponse.setRoutingProfile(RoutingProfile.valueOf(jsonNode.get("weight_name").asText()));
-                getDirectionResponse.setDistance(new Distance(jsonNode.get("distance").asInt()));
-                getDirectionResponse.setDuration(new Duration(jsonNode.get("duration").asInt()));
-                for (JsonNode coordinate : jsonNode.get("geometry").get("coordinates")) {
-                    getDirectionResponse.getLocations().add(new Location(coordinate.get(1).asDouble(),
-                            coordinate.get(0).asDouble()));
-                }
-                getDirectionResponses.add(getDirectionResponse);
+                String result = routeClient.getRouteInfo(PROFILE[i], COORDINATES[i]);
+                JsonNode node = objectMapper.readTree(result).get("routes").get(0);
+                getDirectionResponses.add(objectMapper.treeToValue(node, RouteResponse.getDirectionResponse.class));
             } catch (IOException e) {
                 e.printStackTrace();
             }

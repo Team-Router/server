@@ -8,10 +8,8 @@ public class RouteRequest {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class getDirectionRequest {
-        private String startLatitude;
-        private String startLongitude;
-        private String endLatitude;
-        private String endLongitude;
+    public static class GetDirectionRequest {
+        private Location startLocation;
+        private Location endLocation;
     }
 }
