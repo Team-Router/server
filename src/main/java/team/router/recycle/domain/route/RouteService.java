@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +14,12 @@ import team.router.recycle.domain.route.RouteRequest.GetDirectionRequest;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationRepository;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 @Service
 public class RouteService {
@@ -127,8 +120,25 @@ public class RouteService {
         double endLatitude = getDirectionRequest.getEndLocation().latitude();
         double endLongitude = getDirectionRequest.getEndLocation().longitude();
 
-        Station startStation = stationRepository.findNearestStation(startLatitude, startLongitude);
-        Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude);
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        Station startStation = null;
+        List<Station> nearestStations = stationRepository.findNearestStation(startLatitude, startLongitude, 3);
+        for (Station nearestStation : nearestStations) {
+            String stationId = nearestStation.getStationId();
+            String stationBikeCnt = valueOperations.get(stationId);
+            if (stationBikeCnt == null) {
+                return response.success("캐싱된 대여소 정보가 없습니다.");
+            }
+            if ("0".equals(stationBikeCnt)) {
+                continue;
+            }
+            startStation = nearestStation;
+            break;
+        }
+        if (startStation == null) {
+            return response.success("현재 대여 가능한 자전거가 없습니다.");
+        }
+        Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude, 1).get(0);
 
         String CYCLE_PROFILE = "cycling";
         String WALKING_PROFILE = "walking";

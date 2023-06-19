@@ -26,6 +26,8 @@ public class StationService {
     }
 
     public void initStation() {
+        stationRepository.truncate();
+
         String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000", "/3001/4000"};
 
         List<CompletableFuture<Void>> futures = new ArrayList<>();
