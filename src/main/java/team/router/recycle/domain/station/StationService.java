@@ -16,10 +16,12 @@ public class StationService {
     private final StationRepository stationRepository;
     private final ExecutorService executorService;
     private final StationClient client;
+    private final ObjectMapper objectMapper;
 
-    public StationService(StationRepository stationRepository, StationClient client) {
+    public StationService(StationRepository stationRepository, StationClient client, ObjectMapper objectMapper) {
         this.stationRepository = stationRepository;
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        this.objectMapper = objectMapper;
         this.client = client;
     }
 
@@ -33,7 +35,6 @@ public class StationService {
                 try {
                     String result = client.getStationInfo(target);
 
-                    ObjectMapper objectMapper = new ObjectMapper();
                     JsonNode jsonNode = objectMapper.readTree(result).get("stationInfo").get("row");
                     List<Station> stationList = new ArrayList<>();
                     for (JsonNode station : jsonNode) {
@@ -41,15 +42,7 @@ public class StationService {
                                 .startsWith("0")) {
                             continue;
                         }
-                        stationList.add(Station.builder()
-                                .stationNumber(station.get("RENT_NO").asText())
-                                .stationName(station.get("RENT_NM").asText())
-                                .stationNumberName(station.get("RENT_ID_NM").asText())
-                                .stationAddress1(station.get("STA_ADD1").asText())
-                                .stationAddress2(station.get("STA_ADD2").asText())
-                                .stationLatitude(station.get("STA_LAT").asDouble())
-                                .stationLongitude(station.get("STA_LONG").asDouble())
-                                .build());
+                        stationList.add(objectMapper.treeToValue(station, Station.class));
                     }
                     stationRepository.saveAll(stationList);
                 } catch (Exception e) {
@@ -58,8 +51,6 @@ public class StationService {
             }, executorService));
         }
 
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
-            System.out.println("Station init complete");
-        });
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> System.out.println("Station init complete"));
     }
 }
