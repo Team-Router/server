@@ -18,6 +18,10 @@ public class Station {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @JsonProperty("RENT_ID")
+    private String stationId;
+
     @JsonProperty("RENT_NO")
     private String stationNumber;
 
