@@ -1,0 +1,11 @@
+server:
+  port: 8000
+  servlet:
+    context-path: /
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+MAPBOX_API_KEY: ${MAPBOX_API_KEY}
+SEOUL_API_KEY: ${SEOUL_API_KEY}
