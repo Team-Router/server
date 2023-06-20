@@ -2,6 +2,8 @@
 
 <!--
 Github Issue 번호
+close, closes, closed, fix, fixes, fixed, resolve, resolves, resolved 키워드를 넣어서 이슈를 닫을 수 있습니다.
+ex) - close #12(이슈 번호)
 -->
 
 - #
