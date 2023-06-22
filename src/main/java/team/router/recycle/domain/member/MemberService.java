@@ -1,4 +1,4 @@
-package team.router.recycle.domain.Member;
+package team.router.recycle.domain.member;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;

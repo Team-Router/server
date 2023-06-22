@@ -1,9 +1,7 @@
-package team.router.recycle.domain.Member;
+package team.router.recycle.domain.member;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 
 public class MemberRequest {

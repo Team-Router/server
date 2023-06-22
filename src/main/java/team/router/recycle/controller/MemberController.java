@@ -2,8 +2,8 @@ package team.router.recycle.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import team.router.recycle.domain.Member.MemberRequest;
-import team.router.recycle.domain.Member.MemberService;
+import team.router.recycle.domain.member.MemberRequest;
+import team.router.recycle.domain.member.MemberService;
 
 @RestController
 @RequestMapping("/member")
