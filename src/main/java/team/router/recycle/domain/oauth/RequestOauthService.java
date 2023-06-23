@@ -10,17 +10,17 @@ import team.router.recycle.web.oauth.OauthLoginRequest;
 
 @Service
 public class RequestOauthService {
-    private final Map<Type, OauthApiClient> clients;
+    private final Map<Type, OauthClient> clients;
 
-    public RequestOauthService(List<OauthApiClient> clients) {
+    public RequestOauthService(List<OauthClient> clients) {
         this.clients = clients.stream()
-                .collect(Collectors.toUnmodifiableMap(OauthApiClient::getMemberType, Function.identity()));
+                .collect(Collectors.toUnmodifiableMap(OauthClient::getMemberType, Function.identity()));
     }
 
     public OauthInfo request(OauthLoginRequest oauthLoginRequest) {
-        OauthApiClient oauthApiClient = clients.get(oauthLoginRequest.memberType());
-        String accessToken = oauthApiClient.getOauthAccessToken(oauthLoginRequest);
-        OauthProfileResponse oauthProfile = oauthApiClient.getOauthProfile(accessToken);
+        OauthClient oauthClient = clients.get(oauthLoginRequest.memberType());
+        String accessToken = oauthClient.getOauthAccessToken(oauthLoginRequest);
+        OauthProfileResponse oauthProfile = oauthClient.getOauthProfile(accessToken);
 
         return OauthInfo.builder()
                 .email(oauthProfile.getEmail())
