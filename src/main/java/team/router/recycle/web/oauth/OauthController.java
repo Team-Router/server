@@ -15,6 +15,7 @@ import team.router.recycle.web.auth.TokenResponse;
 @RequiredArgsConstructor
 public class OauthController {
     private final OauthService oauthService;
+
     @PostMapping("/kakao")
     public ResponseEntity<TokenResponse> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
         return ResponseEntity.ok(oauthService.login(kakaoLoginRequest));

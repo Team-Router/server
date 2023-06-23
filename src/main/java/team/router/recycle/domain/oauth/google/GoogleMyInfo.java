@@ -20,6 +20,11 @@ public class GoogleMyInfo implements OauthProfileResponse {
     @JsonProperty("names")
     private List<Name> names;
 
+    @Override
+    public String getEmail() {
+        return emailAddresses.get(0).value;
+    }
+
     @Getter
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class EmailAddress {
@@ -36,11 +41,6 @@ public class GoogleMyInfo implements OauthProfileResponse {
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class Name {
         private String displayName;
-    }
-
-    @Override
-    public String getEmail() {
-        return emailAddresses.get(0).value;
     }
 
 //    @Override

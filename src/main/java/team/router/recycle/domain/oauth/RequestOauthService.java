@@ -1,12 +1,13 @@
 package team.router.recycle.domain.oauth;
 
+import org.springframework.stereotype.Service;
+import team.router.recycle.domain.member.Member.Type;
+import team.router.recycle.web.oauth.OauthLoginRequest;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import team.router.recycle.domain.member.Member.Type;
-import team.router.recycle.web.oauth.OauthLoginRequest;
 
 @Service
 public class RequestOauthService {

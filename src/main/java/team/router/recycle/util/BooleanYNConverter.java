@@ -1,4 +1,4 @@
-package helper;
+package team.router.recycle.util;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

@@ -1,10 +1,10 @@
 package team.router.recycle.domain.member;
 
-import helper.BooleanYNConverter;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import team.router.recycle.util.BooleanYNConverter;
 
 @Entity
 @Data

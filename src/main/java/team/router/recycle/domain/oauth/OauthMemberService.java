@@ -1,8 +1,6 @@
 package team.router.recycle.domain.oauth;
 
 
-import java.util.Collection;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +12,9 @@ import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.domain.token.RefreshTokenService;
 import team.router.recycle.web.auth.TokenResponse;
 
+import java.util.Collection;
+import java.util.Collections;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -21,8 +22,6 @@ public class OauthMemberService {
 
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
-
-
     private final MemberService memberService;
 
     public TokenResponse getAccessTokenWithOauthInfo(OauthInfo oauthInfo) {

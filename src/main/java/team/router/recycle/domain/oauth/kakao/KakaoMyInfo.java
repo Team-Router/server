@@ -12,26 +12,14 @@ public class KakaoMyInfo implements OauthProfileResponse {
     @JsonProperty("kakao_account")
     private KakaoAccount kakaoAccount;
 
-    @Getter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class KakaoAccount {
-        private KakaoProfile profile;
-        private String email;
-    }
-
-    @Getter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class KakaoProfile {
-        private String nickname;
-    }
-
     @Override
     public String getEmail() {
         return kakaoAccount.getEmail();
     }
 
-//    @Override
-//    public String getNickName() {
-//        return kakaoAccount.getProfile().getNickname();
-//    }
+    @Getter
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class KakaoAccount {
+        private String email;
+    }
 }

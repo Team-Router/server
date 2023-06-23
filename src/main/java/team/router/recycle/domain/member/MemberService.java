@@ -2,7 +2,6 @@ package team.router.recycle.domain.member;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import team.router.recycle.web.member.MemberResponse;
 
@@ -12,7 +11,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public MemberResponse findMemberInfoById(Long memberId) {
         return memberRepository.findById(memberId)
