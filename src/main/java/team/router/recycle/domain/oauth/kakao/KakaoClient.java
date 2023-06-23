@@ -1,6 +1,7 @@
 package team.router.recycle.domain.oauth.kakao;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import team.router.recycle.domain.member.Member;
@@ -11,6 +12,7 @@ import team.router.recycle.web.oauth.OauthLoginRequest;
 import java.util.Objects;
 
 @Component
+@EnableFeignClients
 @RequiredArgsConstructor
 public class KakaoClient implements OauthClient {
     private final KakaoAuthFeignClient kakaoAuthFeignClient;

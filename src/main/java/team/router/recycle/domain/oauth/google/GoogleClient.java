@@ -1,6 +1,7 @@
 package team.router.recycle.domain.oauth.google;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import team.router.recycle.domain.member.Member;
@@ -12,6 +13,7 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
+@EnableFeignClients
 public class GoogleClient implements OauthClient {
     private final GoogleAuthFeignClient googleAuthFeignClient;
     private final GoogleApiFeignClient googleApiFeignClient;
