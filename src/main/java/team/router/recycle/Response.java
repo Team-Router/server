@@ -13,17 +13,6 @@ import java.util.LinkedList;
 @Component
 public class Response {
 
-    @Getter
-    @Builder
-    private static class Body {
-
-        private int state;
-        private String result;
-        private String message;
-        private Object data;
-        private Object error;
-    }
-
     public ResponseEntity<?> success(Object data, String msg, HttpStatus status) {
         Body body = Body.builder()
                 .state(status.value())
@@ -131,5 +120,16 @@ public class Response {
                 .error(errors)
                 .build();
         return ResponseEntity.ok(body);
+    }
+
+    @Getter
+    @Builder
+    private static class Body {
+
+        private int state;
+        private String result;
+        private String message;
+        private Object data;
+        private Object error;
     }
 }

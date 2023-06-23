@@ -1,4 +1,4 @@
-package team.router.recycle.domain.member;
+package team.router.recycle.web.member;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,9 +16,10 @@ public class MemberRequest {
         private String email;
         private String password;
     }
+
     @Data
     @NoArgsConstructor
-    public static class signIn{
+    public static class signIn {
         private String email;
         private String password;
     }
