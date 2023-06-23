@@ -35,6 +35,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.4.1'
+    runtimeOnly 'com.h2database:h2'
 
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -48,6 +49,9 @@ dependencies {
     // oauth2
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testImplementation 'org.assertj:assertj-core:3.24.2'
 }
 
 dependencyManagement {
