@@ -17,7 +17,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret-key}")
     private String secretKey;
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 30;
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 7;
