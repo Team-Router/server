@@ -15,16 +15,6 @@ public class RouteController {
         this.routeService = routeService;
     }
 
-    @GetMapping("/station")
-    public ResponseEntity<?> getStation() {
-        return routeService.getStation();
-    }
-
-    @PostMapping("/station")
-    public ResponseEntity<?> updateStation() {
-        return routeService.updateStation();
-    }
-
     @PostMapping("/cycle")
     public ResponseEntity<?> getDirection(@RequestBody RouteRequest.GetDirectionRequest getDirectionRequest) {
         return routeService.getDirection(getDirectionRequest);
