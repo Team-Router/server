@@ -1,37 +1,65 @@
 package team.router.recycle.domain.member;
 
-import jakarta.persistence.*;
-import lombok.Builder;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import team.router.recycle.util.BooleanYNConverter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class Member {
+public class Member implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String email;
-    private String password;
-    @Enumerated(EnumType.STRING)
-    private Type type;
+    Long id;
+    String email;
+    String password;
 
-    @Convert(converter = BooleanYNConverter.class)
-    private Boolean isDeleted = Boolean.FALSE;
+    Boolean isDeleted = Boolean.FALSE;
 
-    @Builder
-    public Member(String email, String password, Type type, Boolean isDeleted) {
+
+
+    public Member(String email, String password, Boolean isDeleted) {
         this.email = email;
         this.password = password;
-        this.type = type;
         this.isDeleted = isDeleted;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.emptySet();
+    }
 
-    public enum Type {
-        GOOGLE, NAVER, KAKAO
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
