@@ -4,6 +4,7 @@ spring:
       - db
       - jwt
       - client
+      - oauth
 
 
 
