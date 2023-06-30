@@ -11,17 +11,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class RequestOauthService {
-    private final Map<Type, OauthClient> clients;
+    private final Map<Type, AuthClient> authClients;
+    private final Map<Type, InfoClient> infoClients;
 
-    public RequestOauthService(List<OauthClient> clients) {
-        this.clients = clients.stream()
-                .collect(Collectors.toUnmodifiableMap(OauthClient::getMemberType, Function.identity()));
+    public RequestOauthService(List<AuthClient> authClients, List<InfoClient> infoClients) {
+        this.authClients = authClients.stream()
+                .collect(Collectors.toMap(AuthClient::getMemberType, Function.identity()));
+        this.infoClients = infoClients.stream()
+                .collect(Collectors.toMap(InfoClient::getMemberType, Function.identity()));
     }
 
     public OauthInfo request(OauthLoginRequest oauthLoginRequest) {
-        OauthClient oauthClient = clients.get(oauthLoginRequest.memberType());
-        String accessToken = oauthClient.getOauthAccessToken(oauthLoginRequest);
-        OauthProfileResponse oauthProfile = oauthClient.getOauthProfile(accessToken);
+        AuthClient authClient = authClients.get(oauthLoginRequest.memberType());
+        InfoClient infoClient = infoClients.get(oauthLoginRequest.memberType());
+        String accessToken = authClient.getOauthAccessToken(oauthLoginRequest);
+        OauthProfileResponse oauthProfile = infoClient.getOauthProfile(accessToken);
 
         return OauthInfo.builder()
                 .email(oauthProfile.getEmail())

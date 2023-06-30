@@ -18,7 +18,6 @@ public class GoogleLoginRequest implements OauthLoginRequest {
 
     private String redirectUri;
 
-    @Override
     public MultiValueMap<String, String> makeBody() {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
 

@@ -11,13 +11,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
-
-    public MemberResponse findMemberInfoById(Long memberId) {
-        return memberRepository.findById(memberId)
-                .map(MemberResponse::of)
-                .orElseThrow(() -> new EmptyResultDataAccessException("회원 정보가 없습니다. memberId: " + memberId, 1));
-    }
-
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new EmptyResultDataAccessException("회원 정보가 없습니다. email: " + email, 1));
