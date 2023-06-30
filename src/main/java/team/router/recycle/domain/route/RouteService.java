@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team.router.recycle.Response;
@@ -24,20 +21,19 @@ import java.util.concurrent.*;
 @Service
 public class RouteService {
 
+    private static final String WALKING_PROFILE = "walking";
+    private static final String CYCLE_PROFILE = "cycling";
     @Value("${SEOUL_API_KEY}")
     private String SEOUL_API_KEY;
     private final Response response;
     private final StationRepository stationRepository;
-    private final RedisTemplate<String, String> redisTemplate;
     private final ExecutorService executorService;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
 
-    public RouteService(Response response, StationRepository stationRepository,
-                        RedisTemplate<String, String> redisTemplate, RouteClient routeClient, ObjectMapper objectMapper) {
+    public RouteService(Response response, StationRepository stationRepository, RouteClient routeClient, ObjectMapper objectMapper) {
         this.response = response;
         this.stationRepository = stationRepository;
-        this.redisTemplate = redisTemplate;
         this.routeClient = routeClient;
         this.objectMapper = objectMapper;
         this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -51,32 +47,13 @@ public class RouteService {
         objectMapper.registerModule(module);
     }
 
-    public ResponseEntity<?> getStation() {
-        try {
-            Map<String, String> stationData = new HashMap<>();
-            ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-            Set<String> keys = redisTemplate.keys("*");
-            if (keys.isEmpty()) {
-                return response.fail("No station data", HttpStatus.BAD_REQUEST);
-            }
-            for (String key : keys) {
-                stationData.put(key, valueOperations.get(key));
-            }
-            return response.success(stationData);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return response.fail("Failed to retrieve station data", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public ResponseEntity<?> updateStation() {
+    // update_redis 삭제 버전
+    public Map<String, String> updateStation() {
+        Map<String, String> stationMap = new HashMap<>();
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
         String BIKE_PATH = "/json/bikeList";
         String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-
         for (String target : TARGET_LIST) {
             try {
                 URL MASTER_URL = new URL(BASE_URL + SEOUL_API_KEY + BIKE_PATH + target);
@@ -92,43 +69,65 @@ public class RouteService {
                             String parkingBikeTotCnt = station.get("parkingBikeTotCnt").asText();
                             stations.put(stationId, parkingBikeTotCnt);
                         }
-                        valueOperations.multiSet(stations);
+                        stationMap.putAll(stations);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }, executorService));
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                return response.fail("Malformed URL", HttpStatus.BAD_REQUEST);
             }
         }
 
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-
         try {
             allFutures.get();
-            return response.success("Update station success");
+            return stationMap;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
-            return response.fail("Update station failed", HttpStatus.INTERNAL_SERVER_ERROR);
+            Map<String, String> error = new HashMap<>();
+            error.put("errorCode", "400");
+            error.put("errorMessage", "InterruptedException | ExecutionException");
+            return error;
         }
     }
 
-    public ResponseEntity<?> getDirection(RouteRequest.GetDirectionRequest getDirectionRequest) {
+    public ResponseEntity<?> getWalkDirection(RouteRequest.GetDirectionRequest getDirectionRequest) {
         double startLatitude = getDirectionRequest.getStartLocation().latitude();
         double startLongitude = getDirectionRequest.getStartLocation().longitude();
         double endLatitude = getDirectionRequest.getEndLocation().latitude();
         double endLongitude = getDirectionRequest.getEndLocation().longitude();
 
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        RouteResponse.getDirectionResponse getDirectionResponse = new RouteResponse.getDirectionResponse();
+        String coordinates = "/" + startLongitude + "," + startLatitude + ";"
+                + endLongitude + "," + endLatitude;
+
+        try {
+            String result = routeClient.getRouteInfo(WALKING_PROFILE, coordinates);
+            JsonNode node = objectMapper.readTree(result).get("routes").get(0);
+            getDirectionResponse = objectMapper.treeToValue(node, RouteResponse.getDirectionResponse.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response.success(getDirectionResponse);
+    }
+
+    public ResponseEntity<?> getCycleDirection(RouteRequest.GetDirectionRequest getDirectionRequest) {
+        Map<String, String> stationsMap = updateStation();
+        if ("400".equals(stationsMap.get("errorCode"))) {
+            return response.success(stationsMap.get("errorMessage"));
+        }
+
+        double startLatitude = getDirectionRequest.getStartLocation().latitude();
+        double startLongitude = getDirectionRequest.getStartLocation().longitude();
+        double endLatitude = getDirectionRequest.getEndLocation().latitude();
+        double endLongitude = getDirectionRequest.getEndLocation().longitude();
         Station startStation = null;
         List<Station> nearestStations = stationRepository.findNearestStation(startLatitude, startLongitude, 3);
         for (Station nearestStation : nearestStations) {
             String stationId = nearestStation.getStationId();
-            String stationBikeCnt = valueOperations.get(stationId);
-            if (stationBikeCnt == null) {
-                return response.success("캐싱된 대여소 정보가 없습니다.");
-            }
+            String stationBikeCnt = stationsMap.get(stationId);
+
             if ("0".equals(stationBikeCnt)) {
                 System.out.println(stationId);
                 continue;
@@ -141,10 +140,7 @@ public class RouteService {
         }
         Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude, 1).get(0);
 
-        String CYCLE_PROFILE = "cycling";
-        String WALKING_PROFILE = "walking";
         String[] PROFILE = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
-
         String[] COORDINATES = {
                 "/" + startLongitude + "," + startLatitude + ";"
                         + startStation.getStationLongitude() + "," + startStation.getStationLatitude(),
