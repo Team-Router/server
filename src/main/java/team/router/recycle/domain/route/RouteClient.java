@@ -29,4 +29,4 @@ public class RouteClient {
                 .bodyToMono(String.class)
                 .block();
     }
-    }
+}

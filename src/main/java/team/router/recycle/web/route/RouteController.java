@@ -17,6 +17,11 @@ public class RouteController {
 
     @PostMapping("/cycle")
     public ResponseEntity<?> getDirection(@RequestBody RouteRequest.GetDirectionRequest getDirectionRequest) {
-        return routeService.getDirection(getDirectionRequest);
+        return routeService.getCycleDirection(getDirectionRequest);
+    }
+
+    @PostMapping("/walk")
+    public ResponseEntity<?> getWalkDirection(@RequestBody RouteRequest.GetDirectionRequest getDirectionRequest) {
+        return routeService.getWalkDirection(getDirectionRequest);
     }
 }
