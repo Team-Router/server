@@ -1,6 +1,7 @@
 package team.router.recycle.web.oauth;
 
 
+import feign.Body;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import team.router.recycle.web.auth.TokenResponse;
 @RequiredArgsConstructor
 public class OauthController {
     private final OauthService oauthService;
+
 
     @PostMapping("/kakao")
     public ResponseEntity<TokenResponse> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {

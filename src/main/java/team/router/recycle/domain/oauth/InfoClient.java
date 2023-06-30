@@ -3,10 +3,7 @@ package team.router.recycle.domain.oauth;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.web.oauth.OauthLoginRequest;
 
-public interface OauthClient {
-    String getOauthAccessToken(OauthLoginRequest oauthLoginRequest);
-
+public interface InfoClient {
     OauthProfileResponse getOauthProfile(String accessToken);
-
     Member.Type getMemberType();
 }

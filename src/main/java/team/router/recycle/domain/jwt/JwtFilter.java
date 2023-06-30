@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -12,6 +13,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Enumeration;
 
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
@@ -25,13 +28,35 @@ public class JwtFilter extends OncePerRequestFilter {
     // JWT 토큰의 인증 정보를 현재 쓰레드의 SecurityContext 에 저장하는 역할 수행
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) throws IOException, ServletException {
-        // 1. Request Header 에서 토큰을 꺼냄
-        String jwt = resolveToken(request);
+        logger.info("===path, method===");
+        logger.info("path : " + request.getServletPath());
+        logger.info("method : " + request.getMethod());
+        logger.info("===header===");
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while(headerNames.hasMoreElements()){
+            String name = headerNames.nextElement();
+            logger.info(name + " : " + request.getHeader(name));
+        }
+        logger.info("===part===");
+        if(request.getContentType().equals("multipart/form-data")){
+            Collection<Part> parts = request.getParts();
+            for (Part part : parts) {
+                logger.info(part.getName() + " : " + part.getSize());
+            }
+        }
 
-        // 2. validateToken 으로 토큰 유효성 검사
-        // 정상 토큰이면 해당 토큰으로 Authentication 을 가져와서 SecurityContext 에 저장
-        if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-            Authentication authentication = tokenProvider.getAuthentication(jwt);
+        if(request.getHeader(AUTHORIZATION_HEADER) == null){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = resolveToken(request);
+        if (token == null) {
+            throw new RuntimeException("토큰이 존재하지 않습니다.");
+        }
+
+        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+            Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 

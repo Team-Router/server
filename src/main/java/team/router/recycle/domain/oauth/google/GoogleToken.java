@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GoogleToken {
 
-    @JsonProperty("access_token")
-    private String accessToken;
-
     @JsonProperty("token_type")
     private String tokenType;
+
+    @JsonProperty("access_token")
+    private String accessToken;
 
     @JsonProperty("expires_in")
     private String expiresIn;

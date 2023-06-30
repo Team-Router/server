@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 
 @FeignClient(name = "googleApiFeignClient", url = "${oauth.google.url.api}")
-public interface GoogleApiFeignClient {
+public interface GoogleInfoClient {
 
     @GetMapping("/v1/people/me?personFields=nicknames,emailAddresses,names")
     ResponseEntity<GoogleMyInfo> getOauthProfile(@RequestHeader("Authorization") String authorization);

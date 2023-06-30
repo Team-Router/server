@@ -8,7 +8,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.jwt.TokenProvider;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.member.MemberService;
@@ -16,7 +15,6 @@ import team.router.recycle.domain.token.RefreshTokenService;
 import team.router.recycle.web.auth.*;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AuthService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;

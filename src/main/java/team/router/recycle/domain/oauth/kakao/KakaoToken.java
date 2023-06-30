@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KakaoToken {
 
-    @JsonProperty("access_token")
-    private String accessToken;
-
     @JsonProperty("token_type")
     private String tokenType;
+
+    @JsonProperty("access_token")
+    private String accessToken;
 
     @JsonProperty("refresh_token")
     private String refreshToken;
