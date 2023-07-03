@@ -1,0 +1,10 @@
+###
+POST http://localhost:8080/oauth/kakao
+Content-Type: application/json
+
+{
+  "grant_type": "authorization_code",
+  "client_id": "535bf37029bd14fca9a5e7b3c0d4f283",
+  "redirect_uri": "http://localhost:8080/login/oauth2/code/kakao",
+  "code": "9rU-pJEFrWLEMSm92s4XWtUT-EnvAs1tblOLGumhyKA__iVHWfPEEwSoKYCCKpD4v6Dr9Ao9dRkAAAGJGuZ_qg"
+}

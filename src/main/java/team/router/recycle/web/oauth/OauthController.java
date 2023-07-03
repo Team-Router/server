@@ -1,7 +1,6 @@
 package team.router.recycle.web.oauth;
 
 
-import feign.Body;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,14 +14,14 @@ import team.router.recycle.web.auth.TokenResponse;
 @RequestMapping("/oauth")
 @RequiredArgsConstructor
 public class OauthController {
+    
     private final OauthService oauthService;
-
-
+    
     @PostMapping("/kakao")
     public ResponseEntity<TokenResponse> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
         return ResponseEntity.ok(oauthService.login(kakaoLoginRequest));
     }
-
+    
     @PostMapping("/google")
     public ResponseEntity<TokenResponse> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {
         return ResponseEntity.ok(oauthService.login(googleLoginRequest));

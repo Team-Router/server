@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class StationClient {
+    
     private final WebClient client;
     private final String SEOUL_API_KEY;
 

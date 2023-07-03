@@ -35,6 +35,6 @@ public class MemberService {
 
     public void signOut(Long memberId) {
         Member member = findById(memberId);
-        member.setIsDeleted(Boolean.TRUE);
+//        member.setIsDeleted(Boolean.TRUE);
     }
 }
