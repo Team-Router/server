@@ -1,7 +1,10 @@
 package team.router.recycle.web.route;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import team.router.recycle.domain.route.RouteService;
 import team.router.recycle.domain.route.model.RouteRequest;
 

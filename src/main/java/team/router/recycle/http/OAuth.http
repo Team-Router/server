@@ -3,8 +3,27 @@ POST http://localhost:8080/oauth/kakao
 Content-Type: application/json
 
 {
-  "grant_type": "authorization_code",
-  "client_id": "535bf37029bd14fca9a5e7b3c0d4f283",
-  "redirect_uri": "http://localhost:8080/login/oauth2/code/kakao",
-  "code": "9rU-pJEFrWLEMSm92s4XWtUT-EnvAs1tblOLGumhyKA__iVHWfPEEwSoKYCCKpD4v6Dr9Ao9dRkAAAGJGuZ_qg"
+  "grantType": "authorization_code",
+  "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
+  "redirectUri": "http://localhost:8080/oauth/kakao",
+  "authorizationCode": "Dfkm6yag1vWCGHeCs-R3ijqkWlbs1jNMf-oNpm-c_nCUohGX3EbDyPXH4IVIFUAef0ZF_Ao9dZoAAAGJHt2yHA"
 }
+
+###
+
+POST https://kauth.kakao.com/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+{
+  "grant_type": "authorization_code",
+  "client_id": "e5a4437c4ab721d1a8dd1b685a244afb",
+  "redirect_uri": "http://localhost:8080/oauth/kakao",
+  "code": "if2nR46KCv8V6xFpp0KXAkxXxwAT5WpNYw7P43WqB6xhvt4IhVX-YGuhN9bhwqA9bVb-7Ao9c-wAAAGJHKoTLw"
+}
+
+https://kauth.kakao.com/oauth/authorize?grant_type=authorization_code&client_id=e5a4437c4ab721d1a8dd1b685a244afb&redirect_uri=http://localhost:8080/oauth/kakao&code=if2nR46KCv8V6xFpp0KXAkxXxwAT5WpNYw7P43WqB6xhvt4IhVX-YGuhN9bhwqA9bVb-7Ao9c-wAAAGJHKoTLw
+
+###
+
+GET https://kauth.kakao.com/oauth/authorize?client_id=e5a4437c4ab721d1a8dd1b685a244afb&
+    redirect_uri=http://localhost:8080/oauth/kakao&response_type=code

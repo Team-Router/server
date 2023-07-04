@@ -11,20 +11,20 @@ import java.util.stream.Collectors;
 
 @Service
 public class RequestOauthService {
-    
-    private final Map<Type, OAuthClient> client;
-    
+
+    private final Map<Type, OAuthClient> clients;
+
     public RequestOauthService(List<OAuthClient> clients) {
-        this.client = clients.stream().collect(
+        this.clients = clients.stream().collect(
                 Collectors.toUnmodifiableMap(OAuthClient::getMemberType, Function.identity())
         );
     }
-    
+
     public OauthInfo request(OauthLoginRequest oauthLoginRequest) {
-        OAuthClient oAuthClient = client.get(oauthLoginRequest.memberType()); // kakao
+        OAuthClient oAuthClient = clients.get(oauthLoginRequest.memberType());
         String accessToken = oAuthClient.getOauthAccessToken(oauthLoginRequest);
         OauthProfileResponse oauthProfile = oAuthClient.getOauthProfile(accessToken);
-        
+
         return OauthInfo.builder()
                 .email(oauthProfile.getEmail())
                 .type(oauthLoginRequest.memberType())

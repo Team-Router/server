@@ -8,13 +8,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class RouteClient {
-    private final WebClient client;
-    private final String MAPBOX_API_KEY;
     final String GEOJSON = "?geometries=geojson";
     final String ACCESS = "&access_token=";
+    private final WebClient client;
+    private final String MAPBOX_API_KEY;
 
-    public RouteClient(WebClient.Builder builder, @Value("${MAPBOX_API_KEY}") String MAPBOX_API_KEY) {
-        this.client = builder.baseUrl("https://api.mapbox.com/directions/v5/mapbox/")
+    public RouteClient(WebClient client, @Value("${MAPBOX_API_KEY}") String MAPBOX_API_KEY) {
+        this.client = client.mutate().baseUrl("https://api.mapbox.com/directions/v5/mapbox/")
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)).build()
                 )
