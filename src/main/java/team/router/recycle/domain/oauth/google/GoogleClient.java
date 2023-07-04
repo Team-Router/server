@@ -1,4 +1,4 @@
-package team.router.recycle.domain.oauth.kakao;
+package team.router.recycle.domain.oauth.google;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,14 +15,17 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoClient implements OAuthClient {
-    @Value("${oauth.kakao.url.auth}")
+public class GoogleClient implements OAuthClient {
+
+    @Value("${oauth.google.url.auth}")
     private String authUrl;
 
-    @Value("${oauth.kakao.url.api}")
+    @Value("${oauth.google.url.api}")
     private String apiUrl;
+
     private final WebClient tokenClient;
     private final WebClient infoClient;
+
     @Override
     public String getOauthAccessToken(OauthLoginRequest oauthLoginRequest) {
         return Objects.requireNonNull(tokenClient
@@ -30,33 +33,33 @@ public class KakaoClient implements OAuthClient {
                         .baseUrl(authUrl)
                         .build()
                         .post()
-                        .uri("/oauth/token")
+                        .uri("/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .acceptCharset(StandardCharsets.UTF_8)
                         .bodyValue(oauthLoginRequest.makeBody())
                         .retrieve()
-                        .bodyToMono(KakaoToken.class)
+                        .bodyToMono(GoogleToken.class)
                         .block())
                 .getAccessToken();
     }
 
     @Override
     public OauthProfileResponse getOauthProfile(String accessToken) {
-        return infoClient.mutate()
-                .baseUrl(apiUrl)
-                .build().post()
-                .uri("/v2/user/me")
+        return infoClient.mutate().baseUrl(apiUrl)
+                .build()
+                .get()
+                .uri("/auth/userinfo.emil")
                 .header("Authorization", "Bearer " + accessToken)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .acceptCharset(StandardCharsets.UTF_8)
-                .attribute("property_keys", "[\"kakao_account.email\"]")
                 .retrieve()
-                .bodyToMono(KakaoMyInfo.class)
+                .bodyToMono(GoogleMyInfo.class)
                 .block();
     }
 
+
+
     @Override
     public Member.Type getMemberType() {
-        return Member.Type.KAKAO;
+        return Member.Type.GOOGLE;
     }
 }

@@ -43,9 +43,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/**").permitAll()
-                        .requestMatchers("/station/**").permitAll()
-                        .requestMatchers("/route/**").permitAll()
-                        .anyRequest().authenticated()
+//                        .requestMatchers("/station/**").permitAll()
+//                        .requestMatchers("/route/**").permitAll()
+//                        .anyRequest().authenticated()
+                        /*
+                        로그인: permitAll
+                        대여소: admin
+                        경로: permitAll
+                        즐겨찾기: user
+                         */
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

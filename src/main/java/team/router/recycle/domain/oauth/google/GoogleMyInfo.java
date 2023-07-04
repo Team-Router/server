@@ -14,12 +14,6 @@ public class GoogleMyInfo implements OauthProfileResponse {
     @JsonProperty("emailAddresses")
     private List<EmailAddress> emailAddresses;
 
-    @JsonProperty("nicknames")
-    private List<Nickname> nicknames;
-
-    @JsonProperty("names")
-    private List<Name> names;
-
     @Override
     public String getEmail() {
         return emailAddresses.get(0).value;
@@ -30,25 +24,4 @@ public class GoogleMyInfo implements OauthProfileResponse {
     static class EmailAddress {
         private String value;
     }
-
-    @Getter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class Nickname {
-        private String value;
-    }
-
-    @Getter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    static class Name {
-        private String displayName;
-    }
-
-//    @Override
-//    public String getNickName() {
-//        if (nicknames == null || nicknames.isEmpty()) {
-//            return names.get(0).displayName;
-//        }
-//
-//        return nicknames.get(0).value;
-//    }
 }

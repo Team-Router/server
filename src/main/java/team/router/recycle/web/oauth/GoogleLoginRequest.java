@@ -14,6 +14,8 @@ public class GoogleLoginRequest implements OauthLoginRequest {
 
     private String clientId;
 
+    private String clientSecret;
+
     private String authorizationCode;
 
     private String redirectUri;
@@ -23,6 +25,7 @@ public class GoogleLoginRequest implements OauthLoginRequest {
 
         body.add("grant_type", grantType);
         body.add("client_id", clientId);
+        body.add("client_secret", clientSecret);
         body.add("code", authorizationCode);
         body.add("redirect_uri", redirectUri);
 
