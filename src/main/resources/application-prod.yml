@@ -9,7 +9,7 @@ spring:
       hibernate:
         format_sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
 
 jwt:
   secret-key: ${jwt-key}
@@ -23,6 +23,7 @@ oauth:
     url:
       auth: https://oauth2.googleapis.com
       api: https://www.googleapis.com
+
 client:
   mapbox:
     key: ${mapbox-key}
