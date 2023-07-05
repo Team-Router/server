@@ -38,7 +38,7 @@ public class RouteService {
     private final ExecutorService executorService;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
-    @Value("${SEOUL_API_KEY}")
+    @Value("${client.seoul.key}")
     private String SEOUL_API_KEY;
 
     public RouteService(Response response, StationRepository stationRepository, RouteClient routeClient, ObjectMapper objectMapper) {

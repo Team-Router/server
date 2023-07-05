@@ -13,7 +13,7 @@ public class RouteClient {
     private final WebClient client;
     private final String MAPBOX_API_KEY;
 
-    public RouteClient(WebClient client, @Value("${MAPBOX_API_KEY}") String MAPBOX_API_KEY) {
+    public RouteClient(WebClient client, @Value("${client.mapbox.key}") String MAPBOX_API_KEY) {
         this.client = client.mutate().baseUrl("https://api.mapbox.com/directions/v5/mapbox/")
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)).build()

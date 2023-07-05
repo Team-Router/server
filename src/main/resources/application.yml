@@ -1,11 +1,3 @@
 spring:
   profiles:
-    include:
-      - db
-      - jwt
-      - client
-      - oauth
-
-
-
-
+    active: dev
