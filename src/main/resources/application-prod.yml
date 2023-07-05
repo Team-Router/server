@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: {db-url}
-    username: {db-username}
-    password: {db-password}
+    url: ${db-url}
+    username: ${db-username}
+    password: ${db-password}
   jpa:
     properties:
       hibernate:
@@ -12,7 +12,7 @@ spring:
       ddl-auto: create
 
 jwt:
-  secret-key: {jwt-key}
+  secret-key: ${jwt-key}
 
 oauth:
   kakao:
@@ -25,6 +25,6 @@ oauth:
       api: https://www.googleapis.com
 
 mapbox:
-  key: {mapbox-key}
+  key: ${mapbox-key}
 seoul:
-  key: {seoul-key}
+  key: ${seoul-key}
