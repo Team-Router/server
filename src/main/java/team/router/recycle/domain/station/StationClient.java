@@ -7,12 +7,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class StationClient {
+
     private final WebClient client;
     private final String SEOUL_API_KEY;
 
 
-    public StationClient(WebClient.Builder builder, @Value("${SEOUL_API_KEY}") String SEOUL_API_KEY) {
-        this.client = builder.baseUrl("http://openapi.seoul.go.kr:8088/")
+    public StationClient(WebClient client, @Value("${SEOUL_API_KEY}") String SEOUL_API_KEY) {
+        this.client = client.mutate().baseUrl("http://openapi.seoul.go.kr:8088/")
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)).build()
                 ).build();

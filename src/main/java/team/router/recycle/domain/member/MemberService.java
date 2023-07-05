@@ -3,7 +3,6 @@ package team.router.recycle.domain.member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-import team.router.recycle.web.member.MemberResponse;
 
 import java.util.Optional;
 
@@ -11,6 +10,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new EmptyResultDataAccessException("회원 정보가 없습니다. email: " + email, 1));
@@ -35,6 +35,6 @@ public class MemberService {
 
     public void signOut(Long memberId) {
         Member member = findById(memberId);
-        member.setIsDeleted(Boolean.TRUE);
+//        member.setIsDeleted(Boolean.TRUE);
     }
 }

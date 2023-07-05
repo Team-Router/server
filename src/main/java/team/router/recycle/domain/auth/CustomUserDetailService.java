@@ -29,11 +29,11 @@ public class CustomUserDetailService implements UserDetailsService {
 
     // DB 에 User 값이 존재한다면 UserDetails 객체로 만들어서 리턴
     private UserDetails createUserDetails(Member member) {
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(Collections.emptyList().toString());
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
 
         return new User(
                 String.valueOf(member.getId()),
-                member.getPassword(),
+                "",
                 Collections.singleton(grantedAuthority)
         );
     }

@@ -7,29 +7,39 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team.router.recycle.Response;
-import team.router.recycle.domain.route.model.*;
+import team.router.recycle.domain.route.model.GetDirectionResponseDeserializer;
+import team.router.recycle.domain.route.model.RouteRequest;
+import team.router.recycle.domain.route.model.RouteResponse;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationRepository;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class RouteService {
 
     private static final String WALKING_PROFILE = "walking";
     private static final String CYCLE_PROFILE = "cycling";
-    @Value("${SEOUL_API_KEY}")
-    private String SEOUL_API_KEY;
     private final Response response;
     private final StationRepository stationRepository;
     private final ExecutorService executorService;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
+    @Value("${SEOUL_API_KEY}")
+    private String SEOUL_API_KEY;
 
     public RouteService(Response response, StationRepository stationRepository, RouteClient routeClient, ObjectMapper objectMapper) {
         this.response = response;

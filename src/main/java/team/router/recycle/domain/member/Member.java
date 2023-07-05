@@ -2,28 +2,26 @@ package team.router.recycle.domain.member;
 
 import jakarta.persistence.*;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.router.recycle.domain.BaseEntity;
 import team.router.recycle.util.BooleanYNConverter;
 
-import java.time.LocalDateTime;
-
-@EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
 @NoArgsConstructor
-public class Member extends BaseEntity {
+public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String email;
+
     @Enumerated(EnumType.STRING)
     private Type type;
+
     @Enumerated(EnumType.STRING)
-    private Authority authority = Authority.ROLE_USER;
+    private final Authority authority = Authority.ROLE_USER;
 
     @Convert(converter = BooleanYNConverter.class)
     private Boolean isDeleted = Boolean.FALSE;
@@ -35,16 +33,15 @@ public class Member extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
+    public void delete() {
+        this.isDeleted = Boolean.TRUE;
+    }
+
     public enum Type {
         GOOGLE, NAVER, KAKAO
     }
 
     public enum Authority {
         ROLE_USER, ROLE_ADMIN
-    }
-
-    public void delete() {
-        this.isDeleted = Boolean.TRUE;
-        deletedAt = LocalDateTime.now();
     }
 }

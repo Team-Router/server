@@ -33,6 +33,7 @@ public class OauthMemberService {
 
     private Member newMember(OauthInfo oauthInfo) {
         Member member = Member.builder()
+                .type(oauthInfo.type())
                 .email(oauthInfo.email())
                 .build();
 
@@ -40,7 +41,7 @@ public class OauthMemberService {
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Member member) {
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(Collections.emptyList().toString());
+        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
         return Collections.singleton(grantedAuthority);
     }
 

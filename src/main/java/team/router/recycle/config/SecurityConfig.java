@@ -2,6 +2,7 @@ package team.router.recycle.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -11,16 +12,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import team.router.recycle.domain.jwt.JwtAccessDeniedHandler;
 import team.router.recycle.domain.jwt.JwtAuthenticationEntryPoint;
 import team.router.recycle.domain.jwt.JwtFilter;
 
-import java.util.List;
-
 @RequiredArgsConstructor
+@Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     private final JwtFilter jwtFilter;
@@ -46,23 +43,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/**").permitAll()
-                        .anyRequest().authenticated()
+//                        .requestMatchers("/station/**").permitAll()
+//                        .requestMatchers("/route/**").permitAll()
+//                        .anyRequest().authenticated()
+                        /*
+                        로그인: permitAll
+                        대여소: admin
+                        경로: permitAll
+                        즐겨찾기: user
+                         */
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://router-bike.site", "https://re-cycle-test.vercel.app"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-//        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
     }
 }

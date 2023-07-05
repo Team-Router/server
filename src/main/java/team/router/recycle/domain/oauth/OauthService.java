@@ -8,6 +8,7 @@ import team.router.recycle.web.oauth.OauthLoginRequest;
 @Service
 @RequiredArgsConstructor
 public class OauthService {
+
     private final OauthMemberService oauthMemberService;
     private final RequestOauthService requestOauthService;
 
