@@ -25,28 +25,12 @@ Content-Type: application/json
 # scope=openid%20profile%20email
 
 # client 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
-GET https://accounts.google.com/o/oauth2/v2/auth?
+GET https://accounts.google.com/o/oauth2/auth?
     client_id=467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com&
-    redirect_uri=http://localhost:8080/oauth/google&response_type=code&scope=openid%20profile%20email
-
-# http://localhost:8080/oauth/google?code=4%2F0AZEOvhWp_in5Qast2hE_9HSQs-9yAxOPkzZ2f5WM7wUEpA0mpadDlWTUPPtIwIa2SkqtnA&scope=email+profile+openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email&authuser=1&prompt=consent
-
-###
-
-POST https://oauth2.googleapis.com/token
-Content-Type: application/x-www-form-urlencoded
-
-{
-    "grant_type": "authorization_code",
-    "client_id": "467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com",
-    "client_secret": "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",
-    "redirect_uri": "http://localhost:8080/oauth/google",
-    "code": "4%2F0AZEOvhXD6KYNXx7jObIWKsgSWCektGZ01ryZtAyT0Anh8DQxkCLmE02RyA6u1y7pr_PfCA"
-}
+    redirect_uri=http://localhost:8080/oauth/google&response_type=code&
+    scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile
 
 ###
-
-
 POST http://localhost:8080/oauth/google
 Content-Type: application/json
 
@@ -55,5 +39,5 @@ Content-Type: application/json
   "clientId": "467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com",
   "clientSecret": "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",
   "redirectUri": "http://localhost:8080/oauth/google",
-  "code": "4%2F0AZEOvhUQjt_xvN8YtzJhWljnOQBoqdaNDF529MO6UNxRn303yrjstQ-wykV27jmAI_RRag"
+  "authorizationCode": "4/0AZEOvhV1m7EoMgwF1ELtD8fzpMuJ9cM-zUSK-LAgMS-puxxNdc_ol_CAmfDbxvppIaI_bg"
 }

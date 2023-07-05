@@ -22,13 +22,11 @@ public class GoogleLoginRequest implements OauthLoginRequest {
 
     public MultiValueMap<String, String> makeBody() {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
-
         body.add("grant_type", grantType);
         body.add("client_id", clientId);
         body.add("client_secret", clientSecret);
         body.add("code", authorizationCode);
         body.add("redirect_uri", redirectUri);
-
         return body;
     }
 

@@ -18,11 +18,13 @@ import java.util.Objects;
 public class KakaoClient implements OAuthClient {
     @Value("${oauth.kakao.url.auth}")
     private String authUrl;
-
+    
     @Value("${oauth.kakao.url.api}")
     private String apiUrl;
+    
     private final WebClient tokenClient;
     private final WebClient infoClient;
+    
     @Override
     public String getOauthAccessToken(OauthLoginRequest oauthLoginRequest) {
         return Objects.requireNonNull(tokenClient
@@ -39,7 +41,7 @@ public class KakaoClient implements OAuthClient {
                         .block())
                 .getAccessToken();
     }
-
+    
     @Override
     public OauthProfileResponse getOauthProfile(String accessToken) {
         return infoClient.mutate()
@@ -54,7 +56,7 @@ public class KakaoClient implements OAuthClient {
                 .bodyToMono(KakaoMyInfo.class)
                 .block();
     }
-
+    
     @Override
     public Member.Type getMemberType() {
         return Member.Type.KAKAO;
