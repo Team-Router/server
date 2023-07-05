@@ -23,8 +23,8 @@ oauth:
     url:
       auth: https://oauth2.googleapis.com
       api: https://www.googleapis.com
-
-mapbox:
-  key: ${mapbox-key}
-seoul:
-  key: ${seoul-key}
+client:
+  mapbox:
+    key: ${mapbox-key}
+  seoul:
+    key: ${seoul-key}
