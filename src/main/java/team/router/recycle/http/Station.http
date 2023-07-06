@@ -1,2 +1,5 @@
 POST http://localhost:8080/station/init
 
+###
+
+GET http://localhost:8080/station/realtime

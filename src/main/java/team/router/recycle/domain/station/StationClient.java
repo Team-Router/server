@@ -11,20 +11,20 @@ public class StationClient {
     private final WebClient client;
     private final String SEOUL_API_KEY;
 
-
-    public StationClient(WebClient client, @Value("${client.seoul.key}") String SEOUL_API_KEY) {
-        this.client = client.mutate().baseUrl("http://openapi.seoul.go.kr:8088/")
+    public StationClient(WebClient client, @Value("${client.seoul.key}") String seoulApiKey) {
+        SEOUL_API_KEY = seoulApiKey;
+        String BASE_URL = "http://openapi.seoul.go.kr:8088";
+        this.client = client
+                .mutate()
+                .baseUrl(BASE_URL)
                 .exchangeStrategies(ExchangeStrategies.builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)).build()
-                ).build();
-        this.SEOUL_API_KEY = SEOUL_API_KEY;
+                )
+                .build();
     }
-
-    public String getStationInfo(String target) {
+    public WebClient.RequestHeadersSpec<?> makeRequest(String target) {
+        String BIKE_PATH = "/json/bikeList";
         return client.get()
-                .uri(SEOUL_API_KEY + "/json/tbCycleStationInfo" + target)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .uri(SEOUL_API_KEY + BIKE_PATH + target);
     }
 }
