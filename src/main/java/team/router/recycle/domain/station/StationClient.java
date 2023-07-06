@@ -22,9 +22,12 @@ public class StationClient {
                 )
                 .build();
     }
-    public WebClient.RequestHeadersSpec<?> makeRequest(String target) {
+    public String makeRequest(String target) {
         String BIKE_PATH = "/json/bikeList";
         return client.get()
-                .uri(SEOUL_API_KEY + BIKE_PATH + target);
+                .uri(SEOUL_API_KEY + BIKE_PATH + target)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
     }
 }

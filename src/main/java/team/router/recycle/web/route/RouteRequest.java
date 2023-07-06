@@ -1,8 +1,9 @@
-package team.router.recycle.domain.route.model;
+package team.router.recycle.web.route;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import team.router.recycle.domain.route.model.Location;
 
 public class RouteRequest {
     @Getter

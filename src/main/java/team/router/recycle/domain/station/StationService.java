@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team.router.recycle.Response;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,10 +38,7 @@ public class StationService {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (String target : TARGET_LIST) {
             futures.add(CompletableFuture.runAsync(() -> {
-                String response = client.makeRequest(target)
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .block();
+                String response = client.makeRequest(target);
                 try {
                     objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
                 } catch (JsonProcessingException e) {
@@ -54,14 +54,10 @@ public class StationService {
     public ResponseEntity<?> initStation() {
         stationRepository.truncate();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-
+        List<Station> stationList = new ArrayList<>();
         for (String target : TARGET_LIST) {
             futures.add(CompletableFuture.runAsync(() -> {
-                        String response = client.makeRequest(target)
-                                .retrieve()
-                                .bodyToMono(String.class)
-                                .block();
-                        List<Station> stationList = new ArrayList<>();
+                        String response = client.makeRequest(target);
                         try {
                             objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> {
                                 try {
@@ -71,19 +67,20 @@ public class StationService {
                                 }
                             });
                         } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);                            }
-                        stationRepository.saveAll(stationList);
+                            throw new RuntimeException(e);
+                        }
                     }
                     , executorService
             ));
         }
+        stationRepository.saveAll(stationList);
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         try {
             allFutures.join();
-            return ResponseEntity.ok().build();
+            return response.success();
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().build();
+            return response.fail("따릉이 대여소 DB 초기화에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -92,10 +89,7 @@ public class StationService {
         List<Station> stationList = new ArrayList<>();
         for (String target : TARGET_LIST) {
             futures.add(CompletableFuture.runAsync(() -> {
-                        String response = client.makeRequest(target)
-                                .retrieve()
-                                .bodyToMono(String.class)
-                                .block();
+                        String response = client.makeRequest(target);
                         try {
                             objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> {
                                 try {
@@ -105,8 +99,8 @@ public class StationService {
                                 }
                             });
                         } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);                            }
-
+                            throw new RuntimeException(e);
+                        }
                     }
                     , executorService
             ));
@@ -117,7 +111,7 @@ public class StationService {
             return response.success(stationList);
         } catch (Exception e) {
             e.printStackTrace();
-            return response.fail("서버 오류", HttpStatus.INTERNAL_SERVER_ERROR);
+            return response.fail("따릉이 실시간 정보 가져오기에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
