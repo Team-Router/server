@@ -54,8 +54,8 @@ public class StationService {
     public ResponseEntity<?> initStation() {
         stationRepository.truncate();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
-        List<Station> stationList = new ArrayList<>();
         for (String target : TARGET_LIST) {
+            List<Station> stationList = new ArrayList<>();
             futures.add(CompletableFuture.runAsync(() -> {
                         String response = client.makeRequest(target);
                         try {
@@ -69,11 +69,11 @@ public class StationService {
                         } catch (JsonProcessingException e) {
                             throw new RuntimeException(e);
                         }
+                        stationRepository.saveAll(stationList);
                     }
                     , executorService
             ));
         }
-        stationRepository.saveAll(stationList);
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         try {
             allFutures.join();
