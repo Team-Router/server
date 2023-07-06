@@ -1,9 +1,10 @@
-package team.router.recycle.domain.route.model;
+package team.router.recycle.web.route;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.Getter;
 import lombok.Setter;
+import team.router.recycle.domain.route.model.*;
 
 import java.util.ArrayList;
 import java.util.List;

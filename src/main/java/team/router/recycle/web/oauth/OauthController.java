@@ -18,12 +18,12 @@ public class OauthController {
     private final OauthService oauthService;
 
     @PostMapping("/kakao")
-    public ResponseEntity<TokenResponse> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
-        return ResponseEntity.ok(oauthService.login(kakaoLoginRequest));
+    public ResponseEntity<?> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
+        return oauthService.login(kakaoLoginRequest);
     }
 
     @PostMapping("/google")
-    public ResponseEntity<TokenResponse> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {
-        return ResponseEntity.ok(oauthService.login(googleLoginRequest));
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {
+        return oauthService.login(googleLoginRequest);
     }
 }

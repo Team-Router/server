@@ -1,10 +1,8 @@
 package team.router.recycle.domain.station;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,30 +16,23 @@ import lombok.NoArgsConstructor;
 public class Station {
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonProperty("RENT_ID")
-    private String stationId;
-
-    @JsonProperty("RENT_NO")
-    private String stationNumber;
-
-    @JsonProperty("RENT_NM")
+    @JsonProperty("stationName")
     private String stationName;
 
-    @JsonProperty("RENT_ID_NM")
-    private String stationNumberName;
+    @JsonProperty("parkingBikeTotCnt")
+    @Transient
+    private Integer parkingBikeTotCnt;
 
-    @JsonProperty("STA_ADD1")
-    private String stationAddress1;
-
-    @JsonProperty("STA_ADD2")
-    private String stationAddress2;
-
-    @JsonProperty("STA_LAT")
+    @JsonProperty("stationLatitude")
     private Double stationLatitude;
 
-    @JsonProperty("STA_LONG")
+    @JsonProperty("stationLongitude")
     private Double stationLongitude;
+
+    @JsonProperty("stationId")
+    private String stationId;
 }
