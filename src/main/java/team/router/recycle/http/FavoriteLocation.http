@@ -1,0 +1,10 @@
+POST http://localhost:8080/favorite/add
+Content-Type: application/json
+Authorization: Bearer "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxIiwiYXV0aCI6IlJPTEVfVVNFUiIsImV4cCI6MTY4OTMxMTY2OH0.KvQNQPjHuiUJQE30mFUE1KdA6pD-5NqWWHT2ewMBIrvMcSARThNCncZpiFa58wuC1lOPk4y4RRqNM_QSp6Hhhw"
+
+
+{
+  "name": "test",
+  "latitude": 1.0,
+  "longitude": 1.0
+}
