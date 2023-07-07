@@ -10,18 +10,19 @@ import team.router.recycle.domain.station.StationService;
 @RestController
 @RequestMapping("/station")
 public class StationController {
-
+    
     private final StationService stationService;
-
+    
     public StationController(final StationService stationService) {
         this.stationService = stationService;
     }
-
+    
     @PostMapping("/init")
     public ResponseEntity<?> initStation() {
         return stationService.initStation();
     }
-
+    
+    // Todo: request
     @GetMapping("/realtime")
     public ResponseEntity<?> getRealtimeStation() {
         return stationService.getRealtimeStation();
