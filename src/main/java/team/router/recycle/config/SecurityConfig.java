@@ -23,18 +23,18 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-    
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-    
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .formLogin(AbstractHttpConfigurer::disable)
+//                .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -42,20 +42,15 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers("/favorite/**").authenticated()
-                                .requestMatchers("/**").permitAll()
-//                        .requestMatchers("/station/**").permitAll()
-//                        .requestMatchers("/route/**").permitAll()
-//                        .anyRequest().authenticated()
-                        /*
-                        로그인: permitAll
-                        대여소: admin
-                        경로: permitAll
-                        즐겨찾기: user
-                         */
+                        .requestMatchers("/favorite/**").authenticated()
+                        .requestMatchers("/station/**").permitAll()
+                        .requestMatchers("/route/**").permitAll()
+                        .requestMatchers("/oauth/**").permitAll()
+                        .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        
+
         return http.build();
     }
 }
