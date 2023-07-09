@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import team.router.recycle.Response;
+import team.router.recycle.web.station.StationRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,23 +85,14 @@ public class StationService {
         }
     }
     
-    public ResponseEntity<?> getRealtimeStation() {
-        // Todo: 상하좌우 위도, 경도 범위 필터
-        // 예시: 내 위치가 주어졌을 때 상하좌우 3km 지점의 좌표 계산
-        double myLatitude = 37.5666785;  // 내 위치의 위도
-        double myLongitude = 126.9784679;  // 내 위치의 경도
-        double distance = 1;  // 상하좌우로 이동할 거리 (단위: km)
-        double[] coordinates = calculateCoordinatesWithinDistance(myLatitude, myLongitude, distance);
+    public ResponseEntity<?> getRealtimeStation(StationRequest.RealtimeStationRequest realtimeStationRequest) {
+        double myLatitude = realtimeStationRequest.getLatitude();
+        double myLongitude = realtimeStationRequest.getLongitude();
+        double radius = 0.5;
         
-        double northLat = coordinates[0];
-        double southLat = coordinates[1];
-        double westLon = coordinates[2];
-        double eastLon = coordinates[3];
         
-        //
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<Station> stationList = new ArrayList<>();
-        loop1:
         for (String target : TARGET_LIST) {
             futures.add(CompletableFuture.runAsync(() -> {
                         String response = client.makeRequest(target);
@@ -108,16 +100,11 @@ public class StationService {
                             objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> {
                                 try {
                                     Station currecntStation = objectMapper.treeToValue(node, Station.class);
-                                    // Todo: 필터에 맞는 대여소만 추가
-                                    // 남 ~ 북
-                                    if (currecntStation.getStationLatitude() < southLat && currecntStation.getStationLongitude() > northLat) {
-                                        return;
+                                    Double stationLatitude = currecntStation.getStationLatitude();
+                                    Double stationLongitude = currecntStation.getStationLongitude();
+                                    if (haversine(myLatitude, myLongitude, stationLatitude, stationLongitude) <= radius) {
+                                        stationList.add(currecntStation);
                                     }
-                                    // 서 ~ 남
-                                    if (currecntStation.getStationLatitude() < westLon && currecntStation.getStationLongitude() > eastLon) {
-                                        return;
-                                    }
-                                    stationList.add(currecntStation);
                                 } catch (JsonProcessingException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -132,8 +119,7 @@ public class StationService {
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         try {
             allFutures.join();
-            System.out.println(stationList.size());
-            return response.success(stationList);
+            return response.success(stationList, String.valueOf(stationList.size()), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return response.fail("따릉이 실시간 정보 가져오기에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -159,21 +145,6 @@ public class StationService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         
         // 거리를 km 단위로 반환
-        double distance = radius * c;
-        return distance;
-    }
-    
-    public static double[] calculateCoordinatesWithinDistance(double latitude, double longitude, double distance) {
-        // 위도와 경도를 km 단위로 변환
-        double latKm = distance / 111.32;
-        double lonKm = distance / (111.32 * Math.cos(Math.toRadians(latitude)));
-        
-        // 상하좌우 방향으로 이동한 좌표 계산
-        double northLat = latitude + latKm;
-        double southLat = latitude - latKm;
-        double westLon = longitude - lonKm;
-        double eastLon = longitude + lonKm;
-        
-        return new double[]{northLat, southLat, westLon, eastLon};
+        return radius * c;
     }
 }
