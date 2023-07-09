@@ -12,7 +12,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.router.recycle.domain.favorite_location.FavoriteLocation;
+import team.router.recycle.domain.favorite_station.FavoriteStation;
 import team.router.recycle.util.BooleanYNConverter;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class Member {
     private final Authority authority = Authority.ROLE_USER;
     
     @OneToMany(mappedBy = "member")
-    private List<FavoriteLocation> favoriteLocations = new ArrayList<>();
+    private List<FavoriteStation> favoriteStations = new ArrayList<>();
     
     @Convert(converter = BooleanYNConverter.class)
     private Boolean isDeleted = Boolean.FALSE;
@@ -61,7 +61,7 @@ public class Member {
         ROLE_USER, ROLE_ADMIN
     }
     
-    public void addFavoriteLocation(FavoriteLocation favoriteLocation) {
-        this.favoriteLocations.add(favoriteLocation);
+    public void addFavoriteLocation(FavoriteStation favoriteStation) {
+        this.favoriteStations.add(favoriteStation);
     }
 }

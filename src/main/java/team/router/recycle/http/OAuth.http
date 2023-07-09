@@ -10,7 +10,7 @@ Content-Type: application/json
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
   "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "s4NqThckacuT48mDnttsoYgAao4LNmdyAYpzi-kuACUgisBh5p3V523JDRyKult-ob5jDgo9cxcAAAGJLuTFTg"
+  "authorizationCode": "YG91KjKweybPHVpEHhczYuOh3WfIFy4PDtcL33gq8QLzRX8PdMvAnrHdu20jEbEPL_O7pwopyNkAAAGJOUpYOQ"
 }
 
 

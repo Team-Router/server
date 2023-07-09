@@ -23,12 +23,12 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
-
+    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -48,9 +48,9 @@ public class SecurityConfig {
                         .requestMatchers("/oauth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-
+                
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
+        
         return http.build();
     }
 }

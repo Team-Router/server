@@ -1,4 +1,4 @@
-package team.router.recycle.domain.favorite_location;
+package team.router.recycle.domain.favorite_station;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -20,7 +20,7 @@ import team.router.recycle.domain.member.Member;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FavoriteLocation {
+public class FavoriteStation {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
