@@ -10,7 +10,7 @@ Content-Type: application/json
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
   "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "0MCgHUKtN3wIMWgTEjYFQ-8yOhWjbMVEaVgh0TZg5s8EaaEm2dz9bXxPuMu-okA6Nk05VQo9dGgAAAGJOWUXzw"
+  "authorizationCode": "pdEyP9DnATLVt0jzX9-ZlpbJmofcMY3n189_sbRQHUQZIX10NhpQrHJWus_iZpcBgLjaxAo9c00AAAGJOax3cg"
 }
 
 
@@ -20,6 +20,13 @@ Content-Type: application/json
 %}
 
 ###
-POST http://localhost:8080/favorite/add/ST-100
-Content-Type: application/json
+POST http://localhost:8080/favorite/add?stationId=ST-1000
+Authorization: Bearer {{access_token}}
+
+###
+DELETE http://localhost:8080/favorite/delete?stationId=ST-1000
+Authorization: Bearer {{access_token}}
+
+###
+GET http://localhost:8080/favorite/find
 Authorization: Bearer {{access_token}}

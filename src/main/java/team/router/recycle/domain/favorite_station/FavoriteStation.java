@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.router.recycle.domain.member.Member;
 
+import java.util.Objects;
+
 @Entity
 @Getter
 @Table(name = "favorite_location")
@@ -26,13 +28,28 @@ public class FavoriteStation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    private String name;
-    
-    private Double latitude;
-    
-    private Double longitude;
+    private String stationId;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
+    
+    @Builder
+    public FavoriteStation(Member member, String stationId) {
+        this.member = member;
+        this.stationId = stationId;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FavoriteStation that = (FavoriteStation) o;
+        return Objects.equals(stationId, that.stationId) && Objects.equals(member, that.member);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(stationId, member);
+    }
 }
