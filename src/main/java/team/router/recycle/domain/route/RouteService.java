@@ -81,7 +81,6 @@ public class RouteService {
             Integer stationBikeCnt = stationsMap.get(stationId);
 
             if (stationBikeCnt == null || stationBikeCnt == 0) {
-                System.out.println(stationId);
                 continue;
             }
             startStation = nearestStation;
