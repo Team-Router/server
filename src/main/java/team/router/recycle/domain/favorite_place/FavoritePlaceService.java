@@ -20,7 +20,7 @@ public class FavoritePlaceService {
     private final Response response;
     
     public ResponseEntity<?> addFavoritePlace(Long memberId, FavoritePlaceRequest.AddFavoritePlace request) {
-        Member member = memberService.findById(memberId);
+        Member member = memberService.getById(memberId);
         Double latitude = request.getLatitude();
         Double longitude = request.getLongitude();
         FavoritePlace.Type type = request.getType();
@@ -52,7 +52,7 @@ public class FavoritePlaceService {
             return response.fail("회원 번호가 일치되지 않습니다.", HttpStatus.BAD_REQUEST);
         }
         
-        Member member = memberService.findById(memberId);
+        Member member = memberService.getById(memberId);
         member.deleteFavoritePlace(favoritePlace);
         memberRepository.save(member);
         favoritePlaceRepository.delete(favoritePlace);
