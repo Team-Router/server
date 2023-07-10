@@ -15,4 +15,6 @@ public interface FavoriteStationRepository extends JpaRepository<FavoriteStation
 
     @Query("SELECT s from Station s where s.stationId in (select f.stationId from FavoriteStation f where f.member.id = :memberId)")
     List<Station> findAllByMemberId(Long memberId);
+
+    boolean existsByStationIdAndMemberId(String stationId, Long memberId);
 }

@@ -1,31 +1,30 @@
 package team.router.recycle.domain.favorite_station;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team.router.recycle.Response;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.domain.station.Station;
-import team.router.recycle.domain.station.StationRepository;
+import team.router.recycle.domain.station.StationService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
+import team.router.recycle.web.favorite_station.FavoriteStationResponse;
+import team.router.recycle.web.favorite_station.FavoriteStationsResponse;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-
 public class FavoriteStationService {
 
     private final FavoriteStationRepository favoriteStationRepository;
     private final MemberService memberService;
-    private final Response response;
-    private final StationRepository stationRepository;
+    private final StationService stationService;
 
     @Transactional
-    public ResponseEntity<?> addFavoriteStation(String stationId, Long memberId) {
+    public void addFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);
 
@@ -34,25 +33,22 @@ public class FavoriteStationService {
                 .stationId(stationId)
                 .build();
 
-        favoriteStationRepository.findFavoriteStationByStationIdAndMemberId(stationId, memberId)
-                .ifPresent(f -> {
-                            throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, f.getStationId() + "는 이미 즐겨찾기에 추가된 대여소입니다.");
-                        }
-                );
+        if (favoriteStationRepository.existsByStationIdAndMemberId(stationId, memberId)) {
+            throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, favoriteStation.getStationId() + "는 이미 즐겨찾기에 추가된 대여소입니다.");
+        }
 
         member.addFavoriteStation(favoriteStation);
         favoriteStationRepository.save(favoriteStation);
-        return response.success();
     }
 
     private void validate(String stationId) {
-        if (!stationRepository.existsByStationId(stationId)) {
+        if (stationService.validate(stationId)) {
             throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "해당 대여소가 존재하지 않습니다.");
         }
     }
 
     @Transactional
-    public ResponseEntity<?> deleteFavoriteStation(String stationId, Long memberId) {
+    public void deleteFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);
         FavoriteStation favoriteStation = favoriteStationRepository.findFavoriteStationByStationIdAndMemberId(stationId, memberId)
@@ -62,12 +58,11 @@ public class FavoriteStationService {
 
         member.deleteFavoriteStation(favoriteStation);
         favoriteStationRepository.delete(favoriteStation);
-        return response.success();
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<?> findAllFavoriteStationByMemberId(Long memberId) {
-        List<Station> stationsByMemberId = favoriteStationRepository.findAllByMemberId(memberId);
-        return response.success(stationsByMemberId);
+    public FavoriteStationsResponse findAllFavoriteStationByMemberId(Long memberId) {
+        List<Station> stations = favoriteStationRepository.findAllByMemberId(memberId);
+        return new FavoriteStationsResponse(stations.size(), stations.stream().map(s -> new FavoriteStationResponse(s.getStationName(), s.getStationLatitude(), s.getStationLongitude(), s.getStationId())).collect(Collectors.toList()));
     }
 }
