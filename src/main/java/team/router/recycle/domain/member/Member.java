@@ -1,5 +1,6 @@
 package team.router.recycle.domain.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -12,11 +13,13 @@ import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.router.recycle.domain.favorite_place.FavoritePlace;
 import team.router.recycle.domain.favorite_station.FavoriteStation;
 import team.router.recycle.util.BooleanYNConverter;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Entity
 @Getter
@@ -39,13 +42,27 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<FavoriteStation> favoriteStations = new ArrayList<>();
     
+    @OneToMany(mappedBy = "member")
+    @JsonIgnore
+    private List<FavoritePlace> favoritePlaces = new ArrayList<>();
+    
     public void addFavoriteStation(FavoriteStation favoriteStation) {
         favoriteStations.add(favoriteStation);
+
     }
     
     public void deleteFavoriteStation(FavoriteStation favoriteStation) {
         favoriteStations.remove(favoriteStation);
     }
+    
+    public void addFavoritePlace(FavoritePlace favoritePlace) {
+        favoritePlaces.add(favoritePlace);
+    }
+    
+    public void deleteFavoritePlace(FavoritePlace favoritePlace) {
+        favoritePlaces.remove(favoritePlace);
+    }
+    
     
     @Convert(converter = BooleanYNConverter.class)
     private Boolean isDeleted = Boolean.FALSE;
@@ -67,9 +84,5 @@ public class Member {
     
     public enum Authority {
         ROLE_USER, ROLE_ADMIN
-    }
-    
-    public void addFavoriteLocation(FavoriteStation favoriteStation) {
-        this.favoriteStations.add(favoriteStation);
     }
 }
