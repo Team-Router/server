@@ -39,7 +39,7 @@ public class KakaoClient implements OAuthClient {
                         .retrieve()
                         .bodyToMono(KakaoToken.class)
                         .block())
-                .getAccessToken();
+                .accessToken();
     }
     
     @Override

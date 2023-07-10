@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import team.router.recycle.domain.oauth.OauthService;
-import team.router.recycle.web.auth.TokenResponse;
 
 @RestController
 @RequestMapping("/oauth")
@@ -19,11 +18,11 @@ public class OauthController {
 
     @PostMapping("/kakao")
     public ResponseEntity<?> kakaoLogin(@RequestBody KakaoLoginRequest kakaoLoginRequest) {
-        return oauthService.login(kakaoLoginRequest);
+        return ResponseEntity.ok(oauthService.login(kakaoLoginRequest));
     }
 
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest googleLoginRequest) {
-        return oauthService.login(googleLoginRequest);
+        return ResponseEntity.ok(oauthService.login(googleLoginRequest));
     }
 }

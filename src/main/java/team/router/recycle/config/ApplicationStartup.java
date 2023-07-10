@@ -1,5 +1,6 @@
 package team.router.recycle.config;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
@@ -13,7 +14,7 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
     private final StationService stationService;
 
     @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
+    public void onApplicationEvent(@NotNull ApplicationReadyEvent event) {
         stationService.initStation();
     }
 }

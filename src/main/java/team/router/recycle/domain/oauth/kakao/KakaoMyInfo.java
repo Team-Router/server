@@ -5,20 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import team.router.recycle.domain.oauth.OauthProfileResponse;
 
-@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoMyInfo implements OauthProfileResponse {
-
-    @JsonProperty("kakao_account")
-    private KakaoAccount kakaoAccount;
-
+public record KakaoMyInfo(
+        @JsonProperty("kakao_account") KakaoAccount kakaoAccount
+) implements OauthProfileResponse {
     @Override
     public String getEmail() {
         return kakaoAccount.getEmail();
     }
 
     @Getter
-    @JsonIgnoreProperties(ignoreUnknown = true)
     static class KakaoAccount {
         private String email;
     }
