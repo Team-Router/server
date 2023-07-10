@@ -18,7 +18,7 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@Table(name = "favorite_location")
+@Table(name = "favorite_station")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
