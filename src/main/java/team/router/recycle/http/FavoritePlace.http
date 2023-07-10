@@ -10,7 +10,7 @@ Content-Type: application/json
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
   "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "lHKeXM9KtXxiXC_s1y5tdwW57R-SItOD-HRZbeaP4aCMp1kOH9vTdd_Bzgg9LP2vQfNTTgopyNoAAAGJPgpiQA"
+  "authorizationCode": "lVLWT00qFU2Xz1uQwc2io6uGx1uyAb46YqAu9EukdVuXsmc6gkzlCoAUGoIAYTVJHeximwo9dRoAAAGJPlyaIg"
 }
 
 
@@ -27,10 +27,13 @@ Authorization: Bearer {{access_token}}
 
 {
   "longitude": 127.10118103,
-  "latitude": 37.60810089,
+  "latitude": 37.60810019,
   "type": "NORMAL"
 }
 
+###
+DELETE http://localhost:8080/place/delete?favoriteId=1
+Authorization: Bearer {{access_token}}
 
 ###
 GET  localhost:8080/place/find

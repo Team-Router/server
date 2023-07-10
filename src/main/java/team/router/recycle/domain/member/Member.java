@@ -17,7 +17,9 @@ import team.router.recycle.domain.favorite_place.FavoritePlace;
 import team.router.recycle.domain.favorite_station.FavoriteStation;
 import team.router.recycle.util.BooleanYNConverter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,11 +42,11 @@ public class Member {
     
     @OneToMany(mappedBy = "member")
     private Set<FavoriteStation> favoriteStations = new HashSet<>();
-
+    
     @OneToMany(mappedBy = "member")
     @JsonIgnore
-    private Set<FavoritePlace> favoritePlaces = new HashSet<>();
-
+    private List<FavoritePlace> favoritePlaces = new ArrayList<>();
+    
     public boolean addFavoriteStation(FavoriteStation favoriteStation) {
         return favoriteStations.add(favoriteStation);
     }
@@ -52,10 +54,16 @@ public class Member {
     public void deleteFavoriteStation(FavoriteStation favoriteStation) {
         favoriteStations.remove(favoriteStation);
     }
-
-    public boolean addFavoritePlace(FavoritePlace favoritePlace) {return favoritePlaces.add(favoritePlace);}
-
-
+    
+    public void addFavoritePlace(FavoritePlace favoritePlace) {
+        favoritePlaces.add(favoritePlace);
+    }
+    
+    public void deleteFavoritePlace(FavoritePlace favoritePlace) {
+        favoritePlaces.remove(favoritePlace);
+    }
+    
+    
     @Convert(converter = BooleanYNConverter.class)
     private Boolean isDeleted = Boolean.FALSE;
     
@@ -76,9 +84,5 @@ public class Member {
     
     public enum Authority {
         ROLE_USER, ROLE_ADMIN
-    }
-    
-    public void addFavoriteLocation(FavoriteStation favoriteStation) {
-        this.favoriteStations.add(favoriteStation);
     }
 }
