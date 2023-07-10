@@ -8,6 +8,8 @@ import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.favorite_place.FavoritePlaceRequest;
+import team.router.recycle.web.favorite_place.FavoritePlaceResponse;
+import team.router.recycle.web.favorite_place.FavoritePlacesResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,9 +24,9 @@ public class FavoritePlaceService {
 
     public void addFavoritePlace(Long memberId, FavoritePlaceRequest.AddFavoritePlace request) {
         Member member = memberService.getById(memberId);
-        Double latitude = request.getLatitude();
-        Double longitude = request.getLongitude();
-        FavoritePlace.Type type = request.getType();
+        Double latitude = request.latitude();
+        Double longitude = request.longitude();
+        FavoritePlace.Type type = request.type();
 
         if (favoritePlaceRepository.existsFavoritePlaceByLatitudeAndLongitudeAndMemberId(latitude, longitude, memberId)) {
             throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, "이미 저장된 장소 입니다.");

@@ -1,7 +1,8 @@
 package team.router.recycle.web.favorite_place;
 
-
-public class FavoritePlaceResponse {
-
-//    public static class FindAllResponse
+public record FavoritePlaceResponse(
+        Long id,
+        String placeName,
+        Double latitude,
+        Double longitude) {
 }

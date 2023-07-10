@@ -8,7 +8,6 @@ import team.router.recycle.domain.route.model.Distance;
 import team.router.recycle.domain.route.model.Duration;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.route.model.RoutingProfile;
-import team.router.recycle.web.route.RouteResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;

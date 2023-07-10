@@ -1,4 +1,4 @@
-package team.router.recycle.domain.favorite_place;
+package team.router.recycle.web.favorite_place;
 
 
 import java.util.List;

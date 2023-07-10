@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.router.recycle.domain.favorite_place.FavoritePlaceService;
-import team.router.recycle.domain.favorite_place.FavoritePlacesResponse;
 import team.router.recycle.util.SecurityUtil;
 
 @RestController
