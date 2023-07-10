@@ -1,5 +1,6 @@
 package team.router.recycle.domain.favorite_station;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +19,7 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@Table(name = "favorite_location")
+@Table(name = "favorite_station")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

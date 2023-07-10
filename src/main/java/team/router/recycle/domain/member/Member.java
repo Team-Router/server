@@ -1,5 +1,6 @@
 package team.router.recycle.domain.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -12,6 +13,7 @@ import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.router.recycle.domain.favorite_place.FavoritePlace;
 import team.router.recycle.domain.favorite_station.FavoriteStation;
 import team.router.recycle.util.BooleanYNConverter;
 
@@ -38,7 +40,11 @@ public class Member {
     
     @OneToMany(mappedBy = "member")
     private Set<FavoriteStation> favoriteStations = new HashSet<>();
-    
+
+    @OneToMany(mappedBy = "member")
+    @JsonIgnore
+    private Set<FavoritePlace> favoritePlaces = new HashSet<>();
+
     public boolean addFavoriteStation(FavoriteStation favoriteStation) {
         return favoriteStations.add(favoriteStation);
     }
@@ -46,7 +52,10 @@ public class Member {
     public void deleteFavoriteStation(FavoriteStation favoriteStation) {
         favoriteStations.remove(favoriteStation);
     }
-    
+
+    public boolean addFavoritePlace(FavoritePlace favoritePlace) {return favoritePlaces.add(favoritePlace);}
+
+
     @Convert(converter = BooleanYNConverter.class)
     private Boolean isDeleted = Boolean.FALSE;
     
