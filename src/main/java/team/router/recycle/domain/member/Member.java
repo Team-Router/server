@@ -18,9 +18,8 @@ import team.router.recycle.domain.favorite_station.FavoriteStation;
 import team.router.recycle.util.BooleanYNConverter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 @Entity
 @Getter
@@ -41,14 +40,15 @@ public class Member {
     private final Authority authority = Authority.ROLE_USER;
     
     @OneToMany(mappedBy = "member")
-    private Set<FavoriteStation> favoriteStations = new HashSet<>();
+    private List<FavoriteStation> favoriteStations = new ArrayList<>();
     
     @OneToMany(mappedBy = "member")
     @JsonIgnore
     private List<FavoritePlace> favoritePlaces = new ArrayList<>();
     
-    public boolean addFavoriteStation(FavoriteStation favoriteStation) {
-        return favoriteStations.add(favoriteStation);
+    public void addFavoriteStation(FavoriteStation favoriteStation) {
+        favoriteStations.add(favoriteStation);
+
     }
     
     public void deleteFavoriteStation(FavoriteStation favoriteStation) {

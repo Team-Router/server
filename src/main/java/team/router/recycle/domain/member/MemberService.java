@@ -1,8 +1,10 @@
 package team.router.recycle.domain.member;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import team.router.recycle.web.exception.ErrorCode;
+import team.router.recycle.web.exception.RecycleException;
 
 import java.util.Optional;
 
@@ -11,30 +13,22 @@ import java.util.Optional;
 public class MemberService {
     private final MemberRepository memberRepository;
 
-    public Member findByEmail(String email) {
-        return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new EmptyResultDataAccessException("회원 정보가 없습니다. email: " + email, 1));
-    }
-
-    public Member findById(Long memberId) {
+    @Transactional(readOnly = true)
+    public Member getById(Long memberId) {
         return memberRepository.findById(memberId)
-                .orElseThrow(() -> new EmptyResultDataAccessException("회원 정보가 없습니다. memberId: " + memberId, 1));
+                .orElseThrow(() -> new RecycleException(ErrorCode.MEMBER_NOT_FOUND, "해당 회원을 찾을 수 없습니다."));
     }
 
+    @Transactional(readOnly = true)
     public Optional<Member> findOptionalByEmail(String email) {
         return memberRepository.findByEmail(email);
-    }
-
-    public boolean existsEmail(String email) {
-        return memberRepository.existsByEmail(email);
     }
 
     public Member save(Member member) {
         return memberRepository.save(member);
     }
 
-    public void signOut(Long memberId) {
-        Member member = findById(memberId);
-//        member.setIsDeleted(Boolean.TRUE);
+    public void delete(Long memberId) {
+        memberRepository.deleteById(memberId);
     }
 }
