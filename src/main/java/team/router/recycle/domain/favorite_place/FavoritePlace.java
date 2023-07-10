@@ -26,7 +26,7 @@ public class FavoritePlace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long favoriteStationId;
+    private Long favoritePlaceId;
 
     private Double latitude;
 

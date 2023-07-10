@@ -10,32 +10,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import team.router.recycle.domain.favorite_place.FavoritePlaceService;
+import team.router.recycle.domain.favorite_place.FavoritePlacesResponse;
 import team.router.recycle.util.SecurityUtil;
 
 @RestController
 @RequestMapping("/place")
 @RequiredArgsConstructor
 public class FavoritePlaceController {
-    
+
     private final FavoritePlaceService favoritePlaceService;
-    
-    
+
+
     // request
     @PostMapping(path = "/add")
     public ResponseEntity<?> addFavoritePlace(@RequestBody FavoritePlaceRequest.AddFavoritePlace request) {
-        return favoritePlaceService.addFavoritePlace(SecurityUtil.getCurrentMemberId(), request);
+        favoritePlaceService.addFavoritePlace(SecurityUtil.getCurrentMemberId(), request);
+        return ResponseEntity.ok().build();
     }
-    
-    
+
+
     // 삭제
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteFavoritePlace(@RequestParam Long favoriteId) {
-        return favoritePlaceService.deleteFavoritePlace(SecurityUtil.getCurrentMemberId(), favoriteId);
+        favoritePlaceService.deleteFavoritePlace(SecurityUtil.getCurrentMemberId(), favoriteId);
+        return ResponseEntity.ok().build();
     }
-    
+
     // 전체 조회
     @GetMapping("/find")
     public ResponseEntity<?> findAllFavoritePlace() {
-        return favoritePlaceService.findAllFavoritePlace(SecurityUtil.getCurrentMemberId());
+        FavoritePlacesResponse allFavoritePlace = favoritePlaceService.findAllFavoritePlace(SecurityUtil.getCurrentMemberId());
+        return ResponseEntity.ok(allFavoritePlace);
     }
 }
