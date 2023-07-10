@@ -57,7 +57,7 @@ public class FavoritePlaceService {
 
     public FavoritePlacesResponse findAllFavoritePlace(Long memberId) {
         List<FavoritePlace> favoritePlaces = favoritePlaceRepository.findAllByMemberId(memberId);
-        return new FavoritePlacesResponse(
+        return new FavoritePlacesResponse(favoritePlaces.size(),
                 favoritePlaces
                         .stream()
                         .map(fp ->
