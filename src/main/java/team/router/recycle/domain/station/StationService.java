@@ -66,7 +66,7 @@ public class StationService {
     }
 
 
-    public Map<String, Integer> updateStation() {
+    public Map<String, Integer> getAvailableCycle() {
         Map<String, Integer> stationMap = new HashMap<>();
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (String target : TARGET_LIST) {
@@ -75,7 +75,7 @@ public class StationService {
                 try {
                     objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
                 } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                    throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
                 }
             }, executorService));
         }

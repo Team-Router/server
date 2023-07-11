@@ -1,5 +1,6 @@
 package team.router.recycle.web.route;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,21 +10,18 @@ import team.router.recycle.domain.route.RouteService;
 
 @RestController
 @RequestMapping("/route")
+@RequiredArgsConstructor
 public class RouteController {
 
     private final RouteService routeService;
 
-    public RouteController(RouteService routeService) {
-        this.routeService = routeService;
-    }
-
     @PostMapping("/cycle")
-    public ResponseEntity<?> getDirection(@RequestBody RouteRequest.GetDirectionRequest getDirectionRequest) {
-        return routeService.getCycleDirection(getDirectionRequest);
+    public ResponseEntity<?> getDirection(@RequestBody GetDirectionRequest getDirectionRequest) {
+        return ResponseEntity.ok(routeService.getCycleDirection(getDirectionRequest));
     }
 
     @PostMapping("/walk")
-    public ResponseEntity<?> getWalkDirection(@RequestBody RouteRequest.GetDirectionRequest getDirectionRequest) {
-        return routeService.getWalkDirection(getDirectionRequest);
+    public ResponseEntity<?> getWalkDirection(@RequestBody GetDirectionRequest getDirectionRequest) {
+        return ResponseEntity.ok(routeService.getWalkDirection(getDirectionRequest));
     }
 }

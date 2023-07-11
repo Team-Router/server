@@ -3,7 +3,6 @@ package team.router.recycle.domain.favorite_place;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import team.router.recycle.domain.member.Member;
-import team.router.recycle.domain.member.MemberRepository;
 import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
@@ -20,9 +19,8 @@ public class FavoritePlaceService {
 
     private final FavoritePlaceRepository favoritePlaceRepository;
     private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
-    public void addFavoritePlace(Long memberId, FavoritePlaceRequest.AddFavoritePlace request) {
+    public void addFavoritePlace(Long memberId, FavoritePlaceRequest request) {
         Member member = memberService.getById(memberId);
         Double latitude = request.latitude();
         Double longitude = request.longitude();
@@ -47,11 +45,6 @@ public class FavoritePlaceService {
         FavoritePlace favoritePlace = favoritePlaceRepository.findById(favoritePlaceId).orElseThrow(
                 () -> new RecycleException(ErrorCode.FAVORITE_NOT_FOUND, "즐겨찾기에 등록되지 않은 장소입니다.")
         );
-
-//        if (!memberId.equals(favoritePlace.getMember().getId())) {
-//            return response.fail("회원 번호가 일치되지 않습니다.", HttpStatus.BAD_REQUEST);
-//        }
-
         Member member = memberService.getById(memberId);
         member.deleteFavoritePlace(favoritePlace);
         favoritePlaceRepository.delete(favoritePlace);

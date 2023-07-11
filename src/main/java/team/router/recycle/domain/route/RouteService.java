@@ -3,15 +3,16 @@ package team.router.recycle.domain.route;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import team.router.recycle.Response;
-import team.router.recycle.web.route.GetDirectionResponseDeserializer;
-import team.router.recycle.web.route.RouteRequest;
-import team.router.recycle.web.route.RouteResponse;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationRepository;
 import team.router.recycle.domain.station.StationService;
+import team.router.recycle.web.exception.ErrorCode;
+import team.router.recycle.web.exception.RecycleException;
+import team.router.recycle.web.route.GetDirectionRequest;
+import team.router.recycle.web.route.GetDirectionResponse;
+import team.router.recycle.web.route.GetDirectionResponseDeserializer;
+import team.router.recycle.web.route.GetDirectionsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,14 +24,12 @@ public class RouteService {
 
     private static final String WALKING_PROFILE = "walking";
     private static final String CYCLE_PROFILE = "cycling";
-    private final Response response;
     private final StationRepository stationRepository;
     private final StationService stationService;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
 
-    public RouteService(Response response, StationRepository stationRepository, StationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
-        this.response = response;
+    public RouteService(StationRepository stationRepository, StationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
         this.stationRepository = stationRepository;
         this.stationService = stationService;
         this.routeClient = routeClient;
@@ -40,40 +39,35 @@ public class RouteService {
 
     private void registerCustomModule() {
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(RouteResponse.getDirectionResponse.class, new GetDirectionResponseDeserializer());
+        module.addDeserializer(GetDirectionResponse.class, new GetDirectionResponseDeserializer());
         objectMapper.registerModule(module);
     }
 
-    public ResponseEntity<?> getWalkDirection(RouteRequest.GetDirectionRequest getDirectionRequest) {
-        double startLatitude = getDirectionRequest.getStartLocation().latitude();
-        double startLongitude = getDirectionRequest.getStartLocation().longitude();
-        double endLatitude = getDirectionRequest.getEndLocation().latitude();
-        double endLongitude = getDirectionRequest.getEndLocation().longitude();
+    public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
+        double startLatitude = getDirectionRequest.startLocation().latitude();
+        double startLongitude = getDirectionRequest.startLocation().longitude();
+        double endLatitude = getDirectionRequest.endLocation().latitude();
+        double endLongitude = getDirectionRequest.endLocation().longitude();
 
-        RouteResponse.getDirectionResponse getDirectionResponse = new RouteResponse.getDirectionResponse();
         String coordinates = "/" + startLongitude + "," + startLatitude + ";"
                 + endLongitude + "," + endLatitude;
 
         try {
             String result = routeClient.getRouteInfo(WALKING_PROFILE, coordinates);
             JsonNode node = objectMapper.readTree(result).get("routes").get(0);
-            getDirectionResponse = objectMapper.treeToValue(node, RouteResponse.getDirectionResponse.class);
+            return objectMapper.treeToValue(node, GetDirectionResponse.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "경로 탐색 서비스가 현재 불가능합니다.");
         }
-        return response.success(getDirectionResponse);
     }
 
-    public ResponseEntity<?> getCycleDirection(RouteRequest.GetDirectionRequest getDirectionRequest) {
-        Map<String, Integer> stationsMap = stationService.updateStation();
-        if (stationsMap.isEmpty()) {
-            return response.success("현재 대여 가능한 자전거가 없습니다.");
-        }
+    public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
+        Map<String, Integer> stationsMap = stationService.getAvailableCycle();
 
-        double startLatitude = getDirectionRequest.getStartLocation().latitude();
-        double startLongitude = getDirectionRequest.getStartLocation().longitude();
-        double endLatitude = getDirectionRequest.getEndLocation().latitude();
-        double endLongitude = getDirectionRequest.getEndLocation().longitude();
+        double startLatitude = getDirectionRequest.startLocation().latitude();
+        double startLongitude = getDirectionRequest.startLocation().longitude();
+        double endLatitude = getDirectionRequest.endLocation().latitude();
+        double endLongitude = getDirectionRequest.endLocation().longitude();
         Station startStation = null;
         List<Station> nearestStations = stationRepository.findNearestStation(startLatitude, startLongitude, 3);
         for (Station nearestStation : nearestStations) {
@@ -87,7 +81,7 @@ public class RouteService {
             break;
         }
         if (startStation == null) {
-            return response.success("현재 대여 가능한 자전거가 없습니다.");
+            throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다.");
         }
         Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude, 1).get(0);
 
@@ -101,18 +95,18 @@ public class RouteService {
                         + endLongitude + "," + endLatitude
         };
 
-        List<RouteResponse.getDirectionResponse> getDirectionResponses = new ArrayList<>();
+        List<GetDirectionResponse> getDirectionResponse = new ArrayList<>();
 
         for (int i = 0; i < PROFILE.length; i++) {
             try {
                 String result = routeClient.getRouteInfo(PROFILE[i], COORDINATES[i]);
                 JsonNode node = objectMapper.readTree(result).get("routes").get(0);
-                getDirectionResponses.add(objectMapper.treeToValue(node, RouteResponse.getDirectionResponse.class));
+                getDirectionResponse.add(objectMapper.treeToValue(node, GetDirectionResponse.class));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        return response.success(getDirectionResponses);
+        return new GetDirectionsResponse(getDirectionResponse);
     }
 }

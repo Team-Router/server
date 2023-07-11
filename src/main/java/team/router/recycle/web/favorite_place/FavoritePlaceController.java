@@ -22,7 +22,7 @@ public class FavoritePlaceController {
 
     // request
     @PostMapping(path = "/add")
-    public ResponseEntity<?> addFavoritePlace(@RequestBody FavoritePlaceRequest.AddFavoritePlace request) {
+    public ResponseEntity<?> addFavoritePlace(@RequestBody FavoritePlaceRequest request) {
         favoritePlaceService.addFavoritePlace(SecurityUtil.getCurrentMemberId(), request);
         return ResponseEntity.ok().build();
     }
