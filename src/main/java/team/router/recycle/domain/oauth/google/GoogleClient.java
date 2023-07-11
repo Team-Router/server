@@ -40,7 +40,7 @@ public class GoogleClient implements OAuthClient {
                         .retrieve()
                         .bodyToMono(GoogleToken.class)
                         .block())
-                .getAccessToken();
+                .accessToken();
     }
     
     @Override

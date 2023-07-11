@@ -1,28 +1,15 @@
 package team.router.recycle.domain.oauth.kakao;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
-public class KakaoToken {
-
-    @JsonProperty("token_type")
-    private String tokenType;
-
-    @JsonProperty("access_token")
-    private String accessToken;
-
-    @JsonProperty("refresh_token")
-    private String refreshToken;
-
-    @JsonProperty("expires_in")
-    private String expiresIn;
-
-    @JsonProperty("refresh_token_expires_in")
-    private String refreshTokenExpiresIn;
-
-    @JsonProperty("scope")
-    private String scope;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record KakaoToken(
+        @JsonProperty("token_type") String tokenType,
+        @JsonProperty("access_token") String accessToken,
+        @JsonProperty("refresh_token") String refreshToken,
+        @JsonProperty("expires_in") String expiresIn,
+        @JsonProperty("refresh_token_expires_in") String refreshTokenExpiresIn,
+        @JsonProperty("scope") String scope
+) {
 }

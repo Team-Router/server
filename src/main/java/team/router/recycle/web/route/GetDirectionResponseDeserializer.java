@@ -8,26 +8,24 @@ import team.router.recycle.domain.route.model.Distance;
 import team.router.recycle.domain.route.model.Duration;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.route.model.RoutingProfile;
-import team.router.recycle.web.route.RouteResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetDirectionResponseDeserializer extends JsonDeserializer<RouteResponse.getDirectionResponse> {
+public class GetDirectionResponseDeserializer extends JsonDeserializer<GetDirectionResponse> {
     @Override
-    public RouteResponse.getDirectionResponse deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public GetDirectionResponse deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode node = parser.getCodec().readTree(parser);
-        RouteResponse.getDirectionResponse response = new RouteResponse.getDirectionResponse();
-        response.setRoutingProfile(RoutingProfile.valueOf(node.get("weight_name").asText()));
-        response.setDistance(new Distance(node.get("distance").asInt()));
-        response.setDuration(new Duration(node.get("duration").asInt()));
         List<Location> locations = new ArrayList<>();
         for (JsonNode coordinate : node.get("geometry").get("coordinates")) {
             locations.add(new Location(coordinate.get(1).asDouble(),
                     coordinate.get(0).asDouble()));
         }
-        response.setLocations(locations);
-        return response;
+        return new GetDirectionResponse(
+                RoutingProfile.valueOf(node.get("weight_name").asText()),
+                new Duration(node.get("duration").asInt()),
+                new Distance(node.get("distance").asInt()),
+                locations);
     }
 }

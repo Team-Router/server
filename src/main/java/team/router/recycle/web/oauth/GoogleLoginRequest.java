@@ -1,24 +1,11 @@
 package team.router.recycle.web.oauth;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import team.router.recycle.domain.member.Member;
 
-@Getter
-@NoArgsConstructor
-public class GoogleLoginRequest implements OauthLoginRequest {
-
-    private String grantType;
-
-    private String clientId;
-
-    private String clientSecret;
-
-    private String authorizationCode;
-
-    private String redirectUri;
+public record GoogleLoginRequest(String grantType, String clientId, String clientSecret, String authorizationCode,
+                                 String redirectUri) implements OauthLoginRequest {
 
     public MultiValueMap<String, String> makeBody() {
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();

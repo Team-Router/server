@@ -1,20 +1,12 @@
 package team.router.recycle.web.oauth;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 import team.router.recycle.domain.member.Member;
 
-@Getter
-@NoArgsConstructor
-public class KakaoLoginRequest implements OauthLoginRequest {
-
-    private String grantType;
-    private String clientId;
-    private String redirectUri;
-    private String authorizationCode;
+public record KakaoLoginRequest(String grantType, String clientId, String redirectUri,
+                                String authorizationCode) implements OauthLoginRequest {
 
     @Override
     public Member.Type memberType() {
@@ -30,9 +22,6 @@ public class KakaoLoginRequest implements OauthLoginRequest {
         body.add("redirect_uri", redirectUri);
         body.add("code", authorizationCode);
 
-        return UriComponentsBuilder.newInstance()
-                .queryParams(body)
-                .build()
-                .getQueryParams();
+        return UriComponentsBuilder.newInstance().queryParams(body).build().getQueryParams();
     }
 }

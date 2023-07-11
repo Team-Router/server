@@ -1,16 +1,7 @@
 package team.router.recycle.web.auth;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class TokenResponse {
-    private String accessToken;
-    private String refreshToken;
-    private Long accessTokenExpiresIn;
+public record TokenResponse(String accessToken, String refreshToken, Long accessTokenExpiresIn) {
 }

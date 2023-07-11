@@ -19,6 +19,7 @@ public enum ErrorCode {
     ALREADY_REGISTERED_FAVORITE(HttpStatus.CONFLICT),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR),
+    SERVICE_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE),
     ;
     private final HttpStatus httpStatus;
 

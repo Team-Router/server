@@ -46,8 +46,8 @@ public class OauthMemberService {
     }
 
     private TokenResponse generateToken(String subject, Collection<? extends GrantedAuthority> authorities) {
-        TokenResponse tokenDto = tokenProvider.generateTokenDto(subject, authorities);
-        refreshTokenService.issueToken(subject, tokenDto.getRefreshToken());
-        return tokenDto;
+        TokenResponse tokenResponse = tokenProvider.generateTokenDto(subject, authorities);
+        refreshTokenService.issueToken(subject, tokenResponse.refreshToken());
+        return tokenResponse;
     }
 }

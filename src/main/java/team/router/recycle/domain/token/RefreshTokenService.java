@@ -39,20 +39,20 @@ public class RefreshTokenService implements TokenService {
 
     @Transactional
     public TokenResponse reissue(TokenRequest tokenRequestDto) {
-        if (!tokenProvider.validateToken(tokenRequestDto.getRefreshToken())) {
+        if (!tokenProvider.validateToken(tokenRequestDto.refreshToken())) {
             throw new BadCredentialsException("Refresh Token 이 유효하지 않습니다.");
         }
-        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.getAccessToken());
+        Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.accessToken());
 
         Token refreshToken = findToken(authentication.getName());
 
-        if (refreshToken.isNotEqualTo(tokenRequestDto.getRefreshToken())) {
+        if (refreshToken.isNotEqualTo(tokenRequestDto.refreshToken())) {
             throw new BadCredentialsException("토큰의 유저 정보가 일치하지 않습니다.");
         }
 
         TokenResponse tokenDto = tokenProvider.generateTokenDto(authentication.getName(), authentication.getAuthorities());
 
-        refreshToken.renewValue(tokenDto.getRefreshToken(), LocalDateTime.now().plusWeeks(2));
+        refreshToken.renewValue(tokenDto.refreshToken(), LocalDateTime.now().plusWeeks(2));
 
         return tokenDto;
     }

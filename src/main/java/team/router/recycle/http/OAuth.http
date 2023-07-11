@@ -10,7 +10,7 @@ Content-Type: application/json
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
   "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "YG91KjKweybPHVpEHhczYuOh3WfIFy4PDtcL33gq8QLzRX8PdMvAnrHdu20jEbEPL_O7pwopyNkAAAGJOUpYOQ"
+  "authorizationCode": "QWZd0nMshlKedi8A-xq-8NU4yaFvs57B3eLmiSH7Gsg7abRZhbL4mHE4OpYKFXNiHVhLkQoqJY4AAAGJQTywrw"
 }
 
 
@@ -41,5 +41,5 @@ Content-Type: application/json
   "clientId": "467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com",
   "clientSecret": "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",
   "redirectUri": "http://localhost:8080/oauth/google",
-  "authorizationCode": "4/0AZEOvhV1m7EoMgwF1ELtD8fzpMuJ9cM-zUSK-LAgMS-puxxNdc_ol_CAmfDbxvppIaI_bg"
+  "authorizationCode": "4/0AZEOvhV5ucPfftBzcOVG9tW3SM3GhaVBeQxrbRz7BVMw8GfBXf-m1RoAnK09utDnWSDizg"
 }
