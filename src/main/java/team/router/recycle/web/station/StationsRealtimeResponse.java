@@ -4,6 +4,6 @@ import java.util.List;
 
 public record StationsRealtimeResponse(
         Integer count,
-        List<StationRealtimeResponse> data
+        List<StationRealtimeResponse> stationRealtimeResponses
 ) {
 }

@@ -4,6 +4,6 @@ import java.util.List;
 
 public record FavoriteStationsResponse(
         Integer count,
-        List<FavoriteStationResponse> data
+        List<FavoriteStationResponse> favoriteStationResponses
 ) {
 }
