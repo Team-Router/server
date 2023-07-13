@@ -16,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.router.recycle.domain.member.Member;
+import team.router.recycle.web.favorite_place.FavoritePlaceResponse;
 
 @Entity
 @Getter
@@ -26,7 +27,7 @@ public class FavoritePlace {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long favoritePlaceId;
+    private Long id;
 
     private Double latitude;
 
@@ -70,5 +71,14 @@ public class FavoritePlace {
     @Override
     public int hashCode() {
         return Objects.hash(latitude, longitude, type, member);
+    }
+
+    public FavoritePlaceResponse toFavoritePlaceResponse() {
+        return FavoritePlaceResponse.builder()
+                .id(id)
+                .name(type.name())
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
     }
 }

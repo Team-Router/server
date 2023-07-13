@@ -107,6 +107,8 @@ public class RouteService {
             }
         }
 
-        return new GetDirectionsResponse(getDirectionResponse);
+        return GetDirectionsResponse.builder()
+                .getDirectionsResponses(getDirectionResponse)
+                .build();
     }
 }

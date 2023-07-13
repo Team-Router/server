@@ -7,7 +7,6 @@ import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.favorite_place.FavoritePlaceRequest;
-import team.router.recycle.web.favorite_place.FavoritePlaceResponse;
 import team.router.recycle.web.favorite_place.FavoritePlacesResponse;
 
 import java.util.List;
@@ -52,11 +51,12 @@ public class FavoritePlaceService {
 
     public FavoritePlacesResponse findAllFavoritePlace(Long memberId) {
         List<FavoritePlace> favoritePlaces = favoritePlaceRepository.findAllByMemberId(memberId);
-        return new FavoritePlacesResponse(favoritePlaces.size(),
-                favoritePlaces
+        return FavoritePlacesResponse.builder()
+                .count(favoritePlaces.size())
+                .favoritePlaces(favoritePlaces
                         .stream()
-                        .map(fp ->
-                                new FavoritePlaceResponse(fp.getFavoritePlaceId(), fp.getType().name(), fp.getLatitude(), fp.getLongitude()))
-                        .collect(Collectors.toList()));
+                        .map(FavoritePlace::toFavoritePlaceResponse)
+                        .collect(Collectors.toList()))
+                .build();
     }
 }

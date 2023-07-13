@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import team.router.recycle.web.favorite_station.FavoriteStationResponse;
 
 @Entity
 @Builder
@@ -35,4 +36,14 @@ public class Station {
 
     @JsonProperty("stationId")
     private String stationId;
+
+    // to FavoriteStationResponse
+    public FavoriteStationResponse toFavoriteStationResponse() {
+        return FavoriteStationResponse.builder()
+                .name(stationName)
+                .latitude(stationLatitude)
+                .longitude(stationLongitude)
+                .id(stationId)
+                .build();
+    }
 }

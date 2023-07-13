@@ -116,7 +116,10 @@ public class StationService {
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         try {
             allFutures.join();
-            return new StationsRealtimeResponse(stationList.size(), stationList);
+            return StationsRealtimeResponse.builder()
+                    .count(stationList.size())
+                    .stationRealtimeResponses(stationList)
+                    .build();
         } catch (Exception e) {
             throw new RecycleException(ErrorCode.INTERNAL_SERVER_ERROR, "따릉이 대여소 실시간 정보 조회에 실패하였습니다.");
         }
