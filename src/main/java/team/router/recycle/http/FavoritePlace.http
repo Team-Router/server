@@ -10,18 +10,18 @@ Content-Type: application/json
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
   "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "lVLWT00qFU2Xz1uQwc2io6uGx1uyAb46YqAu9EukdVuXsmc6gkzlCoAUGoIAYTVJHeximwo9dRoAAAGJPlyaIg"
+  "authorizationCode": "5acywOg6TwcoVH1PPTkELH0c4kcU--2dGoOc9WL7x0YxcGmmWm3fL6dUOLijoQ7I4qdJ_go9dVoAAAGJTJrNnA"
 }
 
 
 > {%
-    client.global.set("access_token", response.body.data.accessToken);
-    client.global.set("refresh_token", response.body.data.refreshToken);
+    client.global.set("access_token", response.body.accessToken);
+    client.global.set("refresh_token", response.body.refreshToken);
 %}
 
 
 ###
-POST localhost:8080/place/add
+POST localhost:8080/place
 Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
@@ -32,9 +32,9 @@ Authorization: Bearer {{access_token}}
 }
 
 ###
-DELETE http://localhost:8080/place/delete?favoriteId=1
+DELETE http://localhost:8080/place?favoriteId=3
 Authorization: Bearer {{access_token}}
 
 ###
-GET  localhost:8080/place/find
+GET  localhost:8080/place
 Authorization: Bearer {{access_token}}
