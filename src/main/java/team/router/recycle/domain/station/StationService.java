@@ -1,8 +1,10 @@
 package team.router.recycle.domain.station;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.web.exception.ErrorCode;
@@ -11,78 +13,54 @@ import team.router.recycle.web.station.StationRealtimeRequest;
 import team.router.recycle.web.station.StationRealtimeResponse;
 import team.router.recycle.web.station.StationsRealtimeResponse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.*;
+import java.util.stream.Stream;
 
 @Service
-public class StationService {
+public class StationService implements ApplicationRunner {
     private final StationRepository stationRepository;
-    private final ExecutorService executorService;
     private final StationClient client;
     private final ObjectMapper objectMapper;
     private static final String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
 
     public StationService(StationRepository stationRepository, StationClient client, ObjectMapper objectMapper) {
         this.stationRepository = stationRepository;
-        this.executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         this.objectMapper = objectMapper;
         this.client = client;
     }
 
-    @PostConstruct
-    public void initStation() {
+    @Override
+    public void run(ApplicationArguments args) {
         stationRepository.truncate();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (String target : TARGET_LIST) {
-            List<Station> stationList = new ArrayList<>();
-            futures.add(CompletableFuture.runAsync(() -> {
-                        String response = client.makeRequest(target);
-                        try {
-                            objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> {
-                                try {
-                                    stationList.add(objectMapper.treeToValue(node, Station.class));
-                                } catch (JsonProcessingException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            });
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
-                        stationRepository.saveAll(stationList);
-                    }
-                    , executorService
-            ));
-        }
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        try {
-            allFutures.join();
-        } catch (Exception e) {
-            throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
-        }
+        Stream<String> targetStream = Arrays.stream(TARGET_LIST).parallel();
+        targetStream.forEach(target -> {
+            String response = client.makeRequest(target);
+            try {
+                JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
+                List<Station> stationList = new ArrayList<>(jsonNode.size());
+                for (JsonNode node : jsonNode) {
+                    stationList.add(objectMapper.treeToValue(node, Station.class));
+                }
+                stationRepository.saveAll(stationList);
+            } catch (JsonProcessingException e) {
+                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
+            }
+        });
     }
-
 
     public Map<String, Integer> getAvailableCycle() {
         Map<String, Integer> stationMap = new HashMap<>();
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-        for (String target : TARGET_LIST) {
-            futures.add(CompletableFuture.runAsync(() -> {
-                String response = client.makeRequest(target);
-                try {
-                    objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
-                } catch (JsonProcessingException e) {
-                    throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
-                }
-            }, executorService));
-        }
-
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        return allFutures.thenApply(v -> stationMap).join();
+        Stream<String> targetStream = Arrays.stream(TARGET_LIST).parallel();
+        targetStream.forEach(target -> {
+            String response = client.makeRequest(target);
+            try {
+                objectMapper.readTree(response).get("rentBikeStatus").get("row")
+                        .forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
+            } catch (JsonProcessingException e) {
+                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
+            }
+        });
+        return stationMap;
     }
 
     @Transactional(readOnly = true)
@@ -90,41 +68,26 @@ public class StationService {
         double myLatitude = stationRealtimeRequest.latitude();
         double myLongitude = stationRealtimeRequest.longitude();
         double radius = 0.5;
-
-
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
         List<StationRealtimeResponse> stationList = new ArrayList<>();
-        for (String target : TARGET_LIST) {
-            futures.add(CompletableFuture.runAsync(() -> {
-                        String response = client.makeRequest(target);
-                        try {
-                            objectMapper.readTree(response).get("rentBikeStatus").get("row").forEach(node -> {
-                                try {
-                                    StationRealtimeResponse station = objectMapper.treeToValue(node, StationRealtimeResponse.class);
-                                    if (haversine(myLatitude, myLongitude, station.stationLatitude(), station.stationLongitude()) <= radius) {
-                                        stationList.add(station);
-                                    }
-                                } catch (JsonProcessingException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            });
-                        } catch (JsonProcessingException e) {
-                            throw new RuntimeException(e);
-                        }
+
+        Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
+            String response = client.makeRequest(target);
+            try {
+                JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
+                for (JsonNode node : jsonNode) {
+                    StationRealtimeResponse station = objectMapper.treeToValue(node, StationRealtimeResponse.class);
+                    if (haversine(myLatitude, myLongitude, station.stationLatitude(), station.stationLongitude()) <= radius) {
+                        stationList.add(station);
                     }
-                    , executorService
-            ));
-        }
-        CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-        try {
-            allFutures.join();
-            return StationsRealtimeResponse.builder()
-                    .count(stationList.size())
-                    .stationRealtimeResponses(stationList)
-                    .build();
-        } catch (Exception e) {
-            throw new RecycleException(ErrorCode.INTERNAL_SERVER_ERROR, "따릉이 대여소 실시간 정보 조회에 실패하였습니다.");
-        }
+                }
+            } catch (JsonProcessingException e) {
+                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
+            }
+        });
+        return StationsRealtimeResponse.builder()
+                .count(stationList.size())
+                .stationRealtimeResponses(stationList)
+                .build();
     }
 
     private static double haversine(double lat1, double lon1, double lat2, double lon2) {
