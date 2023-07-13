@@ -14,7 +14,6 @@ import team.router.recycle.web.station.StationRealtimeResponse;
 import team.router.recycle.web.station.StationsRealtimeResponse;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 @Service
 public class StationService implements ApplicationRunner {
@@ -32,8 +31,7 @@ public class StationService implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         stationRepository.truncate();
-        Stream<String> targetStream = Arrays.stream(TARGET_LIST).parallel();
-        targetStream.forEach(target -> {
+        Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
             String response = client.makeRequest(target);
             try {
                 JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
@@ -50,8 +48,7 @@ public class StationService implements ApplicationRunner {
 
     public Map<String, Integer> getAvailableCycle() {
         Map<String, Integer> stationMap = new HashMap<>();
-        Stream<String> targetStream = Arrays.stream(TARGET_LIST).parallel();
-        targetStream.forEach(target -> {
+        Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
             String response = client.makeRequest(target);
             try {
                 objectMapper.readTree(response).get("rentBikeStatus").get("row")
