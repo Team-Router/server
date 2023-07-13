@@ -1,6 +1,9 @@
 package team.router.recycle.web.route;
 
+import lombok.Builder;
+
 import java.util.List;
 
-public record GetDirectionsResponse(List<GetDirectionResponse> routes) {
+@Builder
+public record GetDirectionsResponse(List<GetDirectionResponse> getDirectionsResponses) {
 }

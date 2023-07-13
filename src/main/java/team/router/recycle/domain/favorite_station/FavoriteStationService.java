@@ -9,7 +9,6 @@ import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
-import team.router.recycle.web.favorite_station.FavoriteStationResponse;
 import team.router.recycle.web.favorite_station.FavoriteStationsResponse;
 
 import java.util.List;
@@ -63,6 +62,12 @@ public class FavoriteStationService {
     @Transactional(readOnly = true)
     public FavoriteStationsResponse findAllFavoriteStationByMemberId(Long memberId) {
         List<Station> stations = favoriteStationRepository.findAllByMemberId(memberId);
-        return new FavoriteStationsResponse(stations.size(), stations.stream().map(s -> new FavoriteStationResponse(s.getStationName(), s.getStationLatitude(), s.getStationLongitude(), s.getStationId())).collect(Collectors.toList()));
+        return FavoriteStationsResponse.builder()
+                .count(stations.size())
+                .favoriteStationResponses(
+                        stations.stream()
+                                .map(Station::toFavoriteStationResponse)
+                                .collect(Collectors.toList()))
+                .build();
     }
 }
