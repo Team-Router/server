@@ -9,9 +9,9 @@ import java.util.Optional;
 @Repository
 public interface FavoritePlaceRepository extends JpaRepository<FavoritePlace, Long> {
     
-    boolean existsFavoritePlaceByLatitudeAndLongitudeAndMemberIdAndType(Double latitude, Double longitude, Long memberId, FavoritePlace.Type type);
+    boolean existsFavoritePlaceByNameAndLatitudeAndLongitudeAndMemberId(String name, Double latitude, Double longitude, Long memberId);
     
     List<FavoritePlace> findAllByMemberId(Long memberId);
     
-    Optional<FavoritePlace> findByType(FavoritePlace.Type type);
+    Optional<FavoritePlace> findByName(String name);
 }

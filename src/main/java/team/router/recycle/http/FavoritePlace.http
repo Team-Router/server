@@ -10,7 +10,7 @@ Content-Type: application/json
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
   "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "5acywOg6TwcoVH1PPTkELH0c4kcU--2dGoOc9WL7x0YxcGmmWm3fL6dUOLijoQ7I4qdJ_go9dVoAAAGJTJrNnA"
+  "authorizationCode": "vpEthWxVgd3SAvXEfyAWUVt0JF2p1dEQAYFtJiOpJVZmIlrdAN_QaHXifsXZvUGVPP_YiwoqJQ4AAAGJTPWU_Q"
 }
 
 
@@ -26,9 +26,9 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "longitude": 127.30118103,
-  "latitude": 37.30810019,
-  "type": "HOME"
+  "name": "현석이네",
+  "longitude": 127.40118103,
+  "latitude": 37.40810019
 }
 
 ###
