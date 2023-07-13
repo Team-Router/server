@@ -14,7 +14,9 @@ import team.router.recycle.web.station.StationRealtimeRequest;
 import team.router.recycle.web.station.StationRealtimeResponse;
 import team.router.recycle.web.station.StationsRealtimeResponse;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class StationService implements ApplicationRunner {
@@ -96,27 +98,53 @@ public class StationService implements ApplicationRunner {
         return radius * c;
     }
 
+    //    public Station findStartStation(Location location) {
+//        Map<String, Integer> availableCycle = getAvailableCycle();
+//        List<Station> nearestStations = findNearestStation(location, 3);
+//        return nearestStations.stream()
+//                .filter(station -> availableCycle.get(station.getStationId()) > 0)
+//                .findFirst()
+//                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
+//    }
+//
+//    public Map<String, Integer> getAvailableCycle() {
+//        Map<String, Integer> stationMap = new HashMap<>();
+//        Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
+//            String response = client.makeRequest(target);
+//            try {
+//                objectMapper.readTree(response).get("rentBikeStatus").get("row")
+//                        .forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
+//            } catch (JsonProcessingException e) {
+//                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
+//            }
+//        });
+//        return stationMap;
+//    }
+    // mix above two methods
     public Station findStartStation(Location location) {
-        Map<String, Integer> availableCycle = getAvailableCycle();
-        List<Station> nearestStations = findNearestStation(location, 3);
-        return nearestStations.stream()
-                .filter(station -> availableCycle.get(station.getStationId()) > 0)
-                .findFirst()
-                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
-    }
+        double myLatitude = location.latitude();
+        double myLongitude = location.longitude();
+        double radius = 0.5;
+        List<Station> stationList = new ArrayList<>();
 
-    public Map<String, Integer> getAvailableCycle() {
-        Map<String, Integer> stationMap = new HashMap<>();
         Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
             String response = client.makeRequest(target);
             try {
-                objectMapper.readTree(response).get("rentBikeStatus").get("row")
-                        .forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
+                JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
+                for (JsonNode node : jsonNode) {
+                    Station station = objectMapper.treeToValue(node, Station.class);
+                    if (haversine(myLatitude, myLongitude, station.getStationLatitude(), station.getStationLongitude()) <= radius) {
+                        stationList.add(station);
+                    }
+                }
             } catch (JsonProcessingException e) {
                 throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
             }
         });
-        return stationMap;
+        return stationList.stream()
+                .filter(station -> station.getParkingBikeTotCnt() > 0)
+                .findFirst()
+                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
     }
 
     public boolean validate(String stationId) {

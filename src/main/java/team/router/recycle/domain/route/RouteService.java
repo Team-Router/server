@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationService;
@@ -34,6 +35,7 @@ public class RouteService {
         this.objectMapper = objectMapper.registerModule(new SimpleModule().addDeserializer(GetDirectionResponse.class, new GetDirectionResponseDeserializer()));
     }
 
+    @Transactional(readOnly = true)
     public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
         String coordinates = getDirectionRequest.startLocation() + ";" + getDirectionRequest.endLocation();
 
@@ -44,6 +46,7 @@ public class RouteService {
         }
     }
 
+    @Transactional(readOnly = true)
     public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
         Location startLocation = getDirectionRequest.startLocation();
         Location endLocation = getDirectionRequest.endLocation();
@@ -73,8 +76,8 @@ public class RouteService {
                 .build();
     }
 
-    private GetDirectionResponse newGetDirectionResponse(String walkingProfile, String coordinates) throws JsonProcessingException {
-        return objectMapper.treeToValue(getRoutes(walkingProfile, coordinates), GetDirectionResponse.class);
+    private GetDirectionResponse newGetDirectionResponse(String profile, String coordinate) throws JsonProcessingException {
+        return objectMapper.treeToValue(getRoutes(profile, coordinate), GetDirectionResponse.class);
     }
 
     private JsonNode getRoutes(String profile, String coordinate) throws JsonProcessingException {
