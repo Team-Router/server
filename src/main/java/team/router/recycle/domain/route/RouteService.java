@@ -18,7 +18,6 @@ import team.router.recycle.web.route.GetDirectionsResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class RouteService {
@@ -46,24 +45,10 @@ public class RouteService {
     }
 
     public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
-        Map<String, Integer> stationsMap = stationService.getAvailableCycle();
         Location startLocation = getDirectionRequest.startLocation();
         Location endLocation = getDirectionRequest.endLocation();
-        Station startStation = null;
-        List<Station> nearestStations = stationService.findNearestStation(startLocation, 3);
-        for (Station nearestStation : nearestStations) {
-            String stationId = nearestStation.getStationId();
-            Integer stationBikeCnt = stationsMap.get(stationId);
 
-            if (stationBikeCnt == null || stationBikeCnt == 0) {
-                continue;
-            }
-            startStation = nearestStation;
-            break;
-        }
-        if (startStation == null) {
-            throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다.");
-        }
+        Station startStation = stationService.findStartStation(startLocation);
         Station endStation = stationService.findNearestStation(endLocation);
 
         String[] profiles = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};

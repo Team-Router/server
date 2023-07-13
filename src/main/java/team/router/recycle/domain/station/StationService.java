@@ -47,20 +47,6 @@ public class StationService implements ApplicationRunner {
         });
     }
 
-    public Map<String, Integer> getAvailableCycle() {
-        Map<String, Integer> stationMap = new HashMap<>();
-        Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
-            String response = client.makeRequest(target);
-            try {
-                objectMapper.readTree(response).get("rentBikeStatus").get("row")
-                        .forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
-            } catch (JsonProcessingException e) {
-                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
-            }
-        });
-        return stationMap;
-    }
-
     @Transactional(readOnly = true)
     public StationsRealtimeResponse getRealtimeStation(StationRealtimeRequest stationRealtimeRequest) {
         double myLatitude = stationRealtimeRequest.latitude();
@@ -108,6 +94,29 @@ public class StationService implements ApplicationRunner {
 
         // 거리를 km 단위로 반환
         return radius * c;
+    }
+
+    public Station findStartStation(Location location) {
+        Map<String, Integer> availableCycle = getAvailableCycle();
+        List<Station> nearestStations = findNearestStation(location, 3);
+        return nearestStations.stream()
+                .filter(station -> availableCycle.get(station.getStationId()) > 0)
+                .findFirst()
+                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
+    }
+
+    public Map<String, Integer> getAvailableCycle() {
+        Map<String, Integer> stationMap = new HashMap<>();
+        Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
+            String response = client.makeRequest(target);
+            try {
+                objectMapper.readTree(response).get("rentBikeStatus").get("row")
+                        .forEach(node -> stationMap.put(node.get("stationId").asText(), node.get("parkingBikeTotCnt").asInt()));
+            } catch (JsonProcessingException e) {
+                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
+            }
+        });
+        return stationMap;
     }
 
     public boolean validate(String stationId) {
