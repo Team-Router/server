@@ -65,7 +65,7 @@ public class FavoritePlace {
     public FavoritePlaceResponse toFavoritePlaceResponse() {
         return FavoritePlaceResponse.builder()
                 .id(id)
-                .name(type.name())
+                .name(name)
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
