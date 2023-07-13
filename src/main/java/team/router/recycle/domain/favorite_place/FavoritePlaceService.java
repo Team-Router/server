@@ -21,23 +21,23 @@ public class FavoritePlaceService {
     
     public void addFavoritePlace(Long memberId, FavoritePlaceRequest request) {
         Member member = memberService.getById(memberId);
+        String name = request.name();
         Double latitude = request.latitude();
         Double longitude = request.longitude();
-        FavoritePlace.Type type = request.type();
         
-        if (favoritePlaceRepository.existsFavoritePlaceByLatitudeAndLongitudeAndMemberIdAndType(latitude, longitude, memberId, type)) {
+        if (favoritePlaceRepository.existsFavoritePlaceByNameAndLatitudeAndLongitudeAndMemberId(name, latitude, longitude, memberId)) {
             throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, "이미 저장된 장소 입니다.");
         }
         
         FavoritePlace favoritePlace = FavoritePlace.builder()
+                .name(name)
                 .longitude(longitude)
                 .latitude(latitude)
-                .type(type)
                 .member(member)
                 .build();
         
-        if (type == FavoritePlace.Type.HOME || type == FavoritePlace.Type.OFFICE) {
-            FavoritePlace existingPlace = favoritePlaceRepository.findByType(type).orElse(null);
+        if (name.equals("HOME") || name.equals("OFFICE")) {
+            FavoritePlace existingPlace = favoritePlaceRepository.findByName(name).orElse(null);
             if (existingPlace != null) {
                 member.deleteFavoritePlace(existingPlace);
                 favoritePlaceRepository.delete(existingPlace);
@@ -66,5 +66,6 @@ public class FavoritePlaceService {
                         .map(FavoritePlace::toFavoritePlaceResponse)
                         .collect(Collectors.toList()))
                 .build();
+
     }
 }
