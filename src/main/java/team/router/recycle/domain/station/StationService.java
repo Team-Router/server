@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.station.StationRealtimeRequest;
@@ -84,6 +85,7 @@ public class StationService {
         return allFutures.thenApply(v -> stationMap).join();
     }
 
+    @Transactional(readOnly = true)
     public StationsRealtimeResponse getRealtimeStation(StationRealtimeRequest stationRealtimeRequest) {
         double myLatitude = stationRealtimeRequest.latitude();
         double myLongitude = stationRealtimeRequest.longitude();
