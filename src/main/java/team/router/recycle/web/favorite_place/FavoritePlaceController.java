@@ -16,27 +16,24 @@ import team.router.recycle.util.SecurityUtil;
 @RequestMapping("/place")
 @RequiredArgsConstructor
 public class FavoritePlaceController {
-
+    
     private final FavoritePlaceService favoritePlaceService;
-
-
-    // request
-    @PostMapping(path = "/add")
+    
+    
+    @PostMapping()
     public ResponseEntity<?> addFavoritePlace(@RequestBody FavoritePlaceRequest request) {
         favoritePlaceService.addFavoritePlace(SecurityUtil.getCurrentMemberId(), request);
         return ResponseEntity.ok().build();
     }
-
-
-    // 삭제
-    @DeleteMapping("/delete")
+    
+    
+    @DeleteMapping()
     public ResponseEntity<?> deleteFavoritePlace(@RequestParam Long favoriteId) {
         favoritePlaceService.deleteFavoritePlace(SecurityUtil.getCurrentMemberId(), favoriteId);
         return ResponseEntity.ok().build();
     }
-
-    // 전체 조회
-    @GetMapping("/find")
+    
+    @GetMapping()
     public ResponseEntity<?> findAllFavoritePlace() {
         FavoritePlacesResponse allFavoritePlace = favoritePlaceService.findAllFavoritePlace(SecurityUtil.getCurrentMemberId());
         return ResponseEntity.ok(allFavoritePlace);
