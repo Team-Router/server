@@ -7,6 +7,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.station.StationRealtimeRequest;
@@ -111,5 +112,21 @@ public class StationService implements ApplicationRunner {
 
     public boolean validate(String stationId) {
         return !stationRepository.existsByStationId(stationId);
+    }
+
+    public List<Station> findNearestStation(Location location, int count) {
+        return findNearestStation(location.latitude(), location.longitude(), count);
+    }
+
+    private List<Station> findNearestStation(double latitude, double longitude, int count) {
+        return stationRepository.findNearestStations(latitude, longitude, count);
+    }
+
+    public Station findNearestStation(Location location) {
+        return findNearestStation(location.latitude(), location.longitude());
+    }
+
+    private Station findNearestStation(double latitude, double longitude) {
+        return stationRepository.findNearestStations(latitude, longitude);
     }
 }

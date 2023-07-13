@@ -1,11 +1,12 @@
 package team.router.recycle.domain.route;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Service;
+import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.station.Station;
-import team.router.recycle.domain.station.StationRepository;
 import team.router.recycle.domain.station.StationService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
@@ -22,40 +23,23 @@ import java.util.Map;
 @Service
 public class RouteService {
 
-    private static final String WALKING_PROFILE = "walking";
-    private static final String CYCLE_PROFILE = "cycling";
-    private final StationRepository stationRepository;
+    private static final String WALKING_PROFILE = "walking/";
+    private static final String CYCLE_PROFILE = "cycling/";
     private final StationService stationService;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
 
-    public RouteService(StationRepository stationRepository, StationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
-        this.stationRepository = stationRepository;
+    public RouteService(StationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
         this.stationService = stationService;
         this.routeClient = routeClient;
-        this.objectMapper = objectMapper;
-        registerCustomModule();
-    }
-
-    private void registerCustomModule() {
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(GetDirectionResponse.class, new GetDirectionResponseDeserializer());
-        objectMapper.registerModule(module);
+        this.objectMapper = objectMapper.registerModule(new SimpleModule().addDeserializer(GetDirectionResponse.class, new GetDirectionResponseDeserializer()));
     }
 
     public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
-        double startLatitude = getDirectionRequest.startLocation().latitude();
-        double startLongitude = getDirectionRequest.startLocation().longitude();
-        double endLatitude = getDirectionRequest.endLocation().latitude();
-        double endLongitude = getDirectionRequest.endLocation().longitude();
-
-        String coordinates = "/" + startLongitude + "," + startLatitude + ";"
-                + endLongitude + "," + endLatitude;
+        String coordinates = getDirectionRequest.startLocation() + ";" + getDirectionRequest.endLocation();
 
         try {
-            String result = routeClient.getRouteInfo(WALKING_PROFILE, coordinates);
-            JsonNode node = objectMapper.readTree(result).get("routes").get(0);
-            return objectMapper.treeToValue(node, GetDirectionResponse.class);
+            return newGetDirectionResponse(WALKING_PROFILE, coordinates);
         } catch (IOException e) {
             throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "경로 탐색 서비스가 현재 불가능합니다.");
         }
@@ -63,13 +47,10 @@ public class RouteService {
 
     public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
         Map<String, Integer> stationsMap = stationService.getAvailableCycle();
-
-        double startLatitude = getDirectionRequest.startLocation().latitude();
-        double startLongitude = getDirectionRequest.startLocation().longitude();
-        double endLatitude = getDirectionRequest.endLocation().latitude();
-        double endLongitude = getDirectionRequest.endLocation().longitude();
+        Location startLocation = getDirectionRequest.startLocation();
+        Location endLocation = getDirectionRequest.endLocation();
         Station startStation = null;
-        List<Station> nearestStations = stationRepository.findNearestStation(startLatitude, startLongitude, 3);
+        List<Station> nearestStations = stationService.findNearestStation(startLocation, 3);
         for (Station nearestStation : nearestStations) {
             String stationId = nearestStation.getStationId();
             Integer stationBikeCnt = stationsMap.get(stationId);
@@ -83,32 +64,35 @@ public class RouteService {
         if (startStation == null) {
             throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다.");
         }
-        Station endStation = stationRepository.findNearestStation(endLatitude, endLongitude, 1).get(0);
+        Station endStation = stationService.findNearestStation(endLocation);
 
-        String[] PROFILE = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
-        String[] COORDINATES = {
-                "/" + startLongitude + "," + startLatitude + ";"
-                        + startStation.getStationLongitude() + "," + startStation.getStationLatitude(),
-                "/" + startStation.getStationLongitude() + "," + startStation.getStationLatitude() + ";"
-                        + endStation.getStationLongitude() + "," + endStation.getStationLatitude(),
-                "/" + endStation.getStationLongitude() + "," + endStation.getStationLatitude() + ";"
-                        + endLongitude + "," + endLatitude
+        String[] profiles = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
+        String[] coordinates = {
+                startLocation + ";" + startStation.getLocation(),
+                startStation.getLocation() + ";" + endStation.getLocation(),
+                endStation.getLocation() + ";" + endLocation
         };
 
-        List<GetDirectionResponse> getDirectionResponse = new ArrayList<>();
+        List<GetDirectionResponse> getDirectionResponses = new ArrayList<>();
 
-        for (int i = 0; i < PROFILE.length; i++) {
+        for (int i = 0; i < profiles.length; i++) {
             try {
-                String result = routeClient.getRouteInfo(PROFILE[i], COORDINATES[i]);
-                JsonNode node = objectMapper.readTree(result).get("routes").get(0);
-                getDirectionResponse.add(objectMapper.treeToValue(node, GetDirectionResponse.class));
+                getDirectionResponses.add(newGetDirectionResponse(profiles[i], coordinates[i]));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         return GetDirectionsResponse.builder()
-                .getDirectionsResponses(getDirectionResponse)
+                .getDirectionsResponses(getDirectionResponses)
                 .build();
+    }
+
+    private GetDirectionResponse newGetDirectionResponse(String walkingProfile, String coordinates) throws JsonProcessingException {
+        return objectMapper.treeToValue(getRoutes(walkingProfile, coordinates), GetDirectionResponse.class);
+    }
+
+    private JsonNode getRoutes(String profile, String coordinate) throws JsonProcessingException {
+        return objectMapper.readTree(routeClient.getRouteInfo(profile, coordinate)).get("routes").get(0);
     }
 }
