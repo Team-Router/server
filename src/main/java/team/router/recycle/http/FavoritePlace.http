@@ -26,9 +26,9 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "longitude": 127.10118103,
-  "latitude": 37.60810019,
-  "type": "NORMAL"
+  "longitude": 127.30118103,
+  "latitude": 37.30810019,
+  "type": "HOME"
 }
 
 ###
