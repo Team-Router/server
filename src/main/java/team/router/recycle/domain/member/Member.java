@@ -1,11 +1,12 @@
 package team.router.recycle.domain.member;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import team.router.recycle.domain.favorite_place.FavoritePlace;
 import team.router.recycle.domain.favorite_station.FavoriteStation;
-import team.router.recycle.util.BooleanYNConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +38,11 @@ public class Member {
     
     @Enumerated(EnumType.STRING)
     private final Authority authority = Authority.ROLE_USER;
-    
-    @OneToMany(mappedBy = "member")
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavoriteStation> favoriteStations = new ArrayList<>();
-    
-    @OneToMany(mappedBy = "member")
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<FavoritePlace> favoritePlaces = new ArrayList<>();
     
@@ -62,22 +62,13 @@ public class Member {
     public void deleteFavoritePlace(FavoritePlace favoritePlace) {
         favoritePlaces.remove(favoritePlace);
     }
-    
-    
-    @Convert(converter = BooleanYNConverter.class)
-    private Boolean isDeleted = Boolean.FALSE;
-    
+
     @Builder
-    public Member(String email, Type type, Boolean isDeleted) {
+    public Member(String email, Type type) {
         this.email = email;
         this.type = type;
-        this.isDeleted = isDeleted;
     }
-    
-    public void delete() {
-        this.isDeleted = Boolean.TRUE;
-    }
-    
+
     public enum Type {
         GOOGLE, NAVER, KAKAO
     }
