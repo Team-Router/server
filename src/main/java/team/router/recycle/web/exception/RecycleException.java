@@ -7,8 +7,12 @@ import org.springframework.http.HttpStatus;
 public class RecycleException extends RuntimeException {
     private final ErrorCode errorCode;
     private final String message;
-
+    
     public HttpStatus getHttpStatus() {
         return this.errorCode.getHttpStatus();
+    }
+    
+    public String getMessage() {
+        return this.message;
     }
 }
