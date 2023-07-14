@@ -24,8 +24,9 @@ public class StationClient {
     }
     public String makeRequest(String target) {
         String BIKE_PATH = "/json/bikeList";
+        String requestUri = SEOUL_API_KEY + BIKE_PATH + target;
         return client.get()
-                .uri(SEOUL_API_KEY + BIKE_PATH + target)
+                .uri(requestUri)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();

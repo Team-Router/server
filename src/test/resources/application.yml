@@ -1,0 +1,39 @@
+spring:
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        #        format_sql: true
+        #        show_sql: true
+        default_batch_fetch_size: 1000
+
+jwt:
+  secret-key: wjdgustjrwjdgustjrwjdgustjrwjdgustjrwjdgustjrwjdgustjrwjdgustjrwjdgustjrwjdgustjrwjdgustjr
+
+oauth:
+  kakao:
+    url:
+      auth: https://kauth.kakao.com
+      api: https://kapi.kakao.com
+  google:
+    url:
+      auth: https://oauth2.googleapis.com
+      api: https://www.googleapis.com
+
+client:
+  mapbox:
+    key: pk.eyJ1IjoiaHl1bnNlb2tjaGVvbmciLCJhIjoiY2xpZHZvc3ptMDIweDNqbzA4b2ljeGhjMiJ9.0iw5JNcWKW4cbFAezMrHSw
+  seoul:
+    key: /5473736b67687975343450566e4455

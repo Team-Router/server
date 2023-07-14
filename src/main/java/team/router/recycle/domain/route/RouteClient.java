@@ -8,8 +8,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class RouteClient {
-    final String GEOJSON = "?geometries=geojson";
-    final String ACCESS = "&access_token=";
+    private static final String GEOJSON = "?geometries=geojson";
+    private static final String ACCESS = "&access_token=";
     private final WebClient client;
     private final String MAPBOX_API_KEY;
 

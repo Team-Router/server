@@ -11,4 +11,9 @@ public class RecycleException extends RuntimeException {
     public HttpStatus getHttpStatus() {
         return this.errorCode.getHttpStatus();
     }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }
