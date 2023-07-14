@@ -76,7 +76,7 @@ public class RouteService {
                 .build();
     }
 
-    private GetDirectionResponse newGetDirectionResponse(String profile, String coordinate) throws JsonProcessingException {
+    GetDirectionResponse newGetDirectionResponse(String profile, String coordinate) throws JsonProcessingException {
         return objectMapper.treeToValue(getRoutes(profile, coordinate), GetDirectionResponse.class);
     }
 
