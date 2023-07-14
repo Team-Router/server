@@ -37,7 +37,7 @@ public class RouteService {
 
     @Transactional(readOnly = true)
     public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
-        String coordinates = getDirectionRequest.startLocation() + ";" + getDirectionRequest.endLocation();
+        String coordinates = getCoordinates(getDirectionRequest.startLocation().toString(), getDirectionRequest.endLocation().toString());
 
         try {
             return newGetDirectionResponse(WALKING_PROFILE, coordinates);
@@ -56,9 +56,9 @@ public class RouteService {
 
         String[] profiles = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
         String[] coordinates = {
-                startLocation + ";" + startStation.getLocation(),
-                startStation.getLocation() + ";" + endStation.getLocation(),
-                endStation.getLocation() + ";" + endLocation
+                getCoordinates(startLocation.toString(), startStation.getLocation()),
+                getCoordinates(startStation.getLocation(), endStation.getLocation()),
+                getCoordinates(endStation.getLocation(), endLocation.toString())
         };
 
         List<GetDirectionResponse> getDirectionResponses = new ArrayList<>();
@@ -67,13 +67,17 @@ public class RouteService {
             try {
                 getDirectionResponses.add(newGetDirectionResponse(profiles[i], coordinates[i]));
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "경로 탐색 서비스가 현재 불가능합니다.");
             }
         }
 
         return GetDirectionsResponse.builder()
                 .getDirectionsResponses(getDirectionResponses)
                 .build();
+    }
+
+    private static String getCoordinates(String from, String to) {
+        return from + ";" + to;
     }
 
     private GetDirectionResponse newGetDirectionResponse(String profile, String coordinate) throws JsonProcessingException {
