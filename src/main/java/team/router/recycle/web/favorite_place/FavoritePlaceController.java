@@ -1,6 +1,7 @@
 package team.router.recycle.web.favorite_place;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +37,14 @@ public class FavoritePlaceController {
     @GetMapping()
     public ResponseEntity<?> findAllFavoritePlace() {
         FavoritePlacesResponse allFavoritePlace = favoritePlaceService.findAllFavoritePlace(SecurityUtil.getCurrentMemberId());
+        return ResponseEntity.ok(allFavoritePlace);
+    }
+    
+    // Pageable: getPageNumber, getPageSize, getOffset, ...
+    // Todo: findAllFavoritePlace랑 나중에 바꾸기
+    @GetMapping("/paging_test")
+    public ResponseEntity<?> findAllFavoritePlacePaging(Pageable pageable) {
+        FavoritePlacesResponse allFavoritePlace = favoritePlaceService.findAllFavoritePlacePaging(SecurityUtil.getCurrentMemberId(), pageable);
         return ResponseEntity.ok(allFavoritePlace);
     }
 }

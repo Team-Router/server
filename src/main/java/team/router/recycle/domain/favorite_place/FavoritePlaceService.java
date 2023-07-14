@@ -1,6 +1,8 @@
 package team.router.recycle.domain.favorite_place;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.member.MemberService;
@@ -66,6 +68,16 @@ public class FavoritePlaceService {
                         .map(FavoritePlace::toFavoritePlaceResponse)
                         .collect(Collectors.toList()))
                 .build();
-
+    }
+    
+    public FavoritePlacesResponse findAllFavoritePlacePaging(Long memberId, Pageable pageable) {
+        Page<FavoritePlace> byMemberOrderByIdDesc = favoritePlaceRepository.findByMemberId(memberId, pageable);
+        return FavoritePlacesResponse.builder()
+                .count(byMemberOrderByIdDesc.getContent().size())
+                .favoritePlaces(byMemberOrderByIdDesc
+                        .stream()
+                        .map(FavoritePlace::toFavoritePlaceResponse)
+                        .collect(Collectors.toList()))
+                .build();
     }
 }
