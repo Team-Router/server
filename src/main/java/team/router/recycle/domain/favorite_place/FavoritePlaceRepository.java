@@ -1,7 +1,10 @@
 package team.router.recycle.domain.favorite_place;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import team.router.recycle.domain.member.Member;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +17,7 @@ public interface FavoritePlaceRepository extends JpaRepository<FavoritePlace, Lo
     List<FavoritePlace> findAllByMemberId(Long memberId);
     
     Optional<FavoritePlace> findByName(String name);
+    
+    // Page: getTotalPages, getTotalElements, ...
+    Page<FavoritePlace> findByMemberId(Long memberId, Pageable pageable);
 }
