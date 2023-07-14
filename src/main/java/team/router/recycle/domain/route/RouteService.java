@@ -37,6 +37,9 @@ public class RouteService {
 
     @Transactional(readOnly = true)
     public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
+        if (getDirectionRequest.isInvalidWalkRequest(getDirectionRequest)) {
+            throw new RecycleException(ErrorCode.BAD_REQUEST, "직선거리 30km를 초과했습니다.");
+        }
         String coordinates = getCoordinates(getDirectionRequest.startLocation().toString(), getDirectionRequest.endLocation().toString());
 
         try {
@@ -48,6 +51,9 @@ public class RouteService {
 
     @Transactional(readOnly = true)
     public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
+        if (getDirectionRequest.isInvalidCycleRequest(getDirectionRequest)) {
+            throw new RecycleException(ErrorCode.BAD_REQUEST, "가까운 거리는 도보 경로를 이용해주세요.");
+        }
         Location startLocation = getDirectionRequest.startLocation();
         Location endLocation = getDirectionRequest.endLocation();
 
