@@ -17,15 +17,16 @@ public class GetDirectionResponseDeserializer extends JsonDeserializer<GetDirect
     @Override
     public GetDirectionResponse deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         JsonNode node = parser.getCodec().readTree(parser);
-        List<Location> locations = new ArrayList<>();
+        List<Location> locations = new ArrayList<>(node.get("geometry").get("coordinates").size());
         for (JsonNode coordinate : node.get("geometry").get("coordinates")) {
             locations.add(new Location(coordinate.get(1).asDouble(),
                     coordinate.get(0).asDouble()));
         }
-        return new GetDirectionResponse(
-                RoutingProfile.valueOf(node.get("weight_name").asText()),
-                new Duration(node.get("duration").asInt()),
-                new Distance(node.get("distance").asInt()),
-                locations);
+        return GetDirectionResponse.builder()
+                .routingProfile(RoutingProfile.valueOf(node.get("weight_name").asText()))
+                .duration(new Duration(node.get("duration").asInt()))
+                .distance(new Distance(node.get("distance").asInt()))
+                .locations(locations)
+                .build();
     }
 }

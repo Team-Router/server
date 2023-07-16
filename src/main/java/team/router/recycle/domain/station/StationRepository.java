@@ -17,7 +17,10 @@ public interface StationRepository extends JpaRepository<Station, Long> {
     void truncate();
 
     @Query(value = "SELECT * FROM station ORDER BY ABS(station_latitude - ?1) + ABS(station_longitude - ?2) LIMIT ?3", nativeQuery = true)
-    List<Station> findNearestStation(double latitude, double longitude, int count);
+    List<Station> findNearestStations(double latitude, double longitude, int count);
+
+    @Query(value = "SELECT * FROM station ORDER BY ABS(station_latitude - ?1) + ABS(station_longitude - ?2) LIMIT 1", nativeQuery = true)
+    Station findNearestStations(double latitude, double longitude);
 
     boolean existsByStationId(String stationId);
 }
