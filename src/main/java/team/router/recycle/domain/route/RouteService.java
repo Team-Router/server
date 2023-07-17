@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import team.router.recycle.domain.route.model.Distance;
+import team.router.recycle.domain.route.model.Duration;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationService;
@@ -18,6 +20,7 @@ import team.router.recycle.web.route.GetDirectionsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -38,7 +41,7 @@ public class RouteService {
     @Transactional(readOnly = true)
     public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
         if (getDirectionRequest.isInvalidWalkRequest(getDirectionRequest)) {
-            throw new RecycleException(ErrorCode.BAD_REQUEST, "직선거리 30km를 초과했습니다.");
+            return GetDirectionResponse.EMPTY;
         }
         String coordinates = getCoordinates(getDirectionRequest.startLocation().toString(), getDirectionRequest.endLocation().toString());
 
@@ -52,7 +55,7 @@ public class RouteService {
     @Transactional(readOnly = true)
     public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
         if (getDirectionRequest.isInvalidCycleRequest(getDirectionRequest)) {
-            throw new RecycleException(ErrorCode.BAD_REQUEST, "가까운 거리는 도보 경로를 이용해주세요.");
+            return GetDirectionsResponse.EMPTY;
         }
         Location startLocation = getDirectionRequest.startLocation();
         Location endLocation = getDirectionRequest.endLocation();

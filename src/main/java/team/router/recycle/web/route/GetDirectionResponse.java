@@ -27,4 +27,13 @@ public record GetDirectionResponse(
     public int getDistance() {
         return distance.meters();
     }
+
+    // empty response
+    public static final GetDirectionResponse EMPTY = GetDirectionResponse
+            .builder()
+            .routingProfile(null)
+            .duration(Duration.ZERO)
+            .distance(Distance.ZERO)
+            .locations(List.of())
+            .build();
 }
