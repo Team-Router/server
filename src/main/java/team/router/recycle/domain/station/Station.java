@@ -47,7 +47,7 @@ public class Station {
                 .build();
     }
 
-    public String getLocation() {
+    public String toLocationString() {
         return stationLongitude + "," + stationLatitude;
     }
 }

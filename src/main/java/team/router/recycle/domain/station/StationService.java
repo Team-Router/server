@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
@@ -14,19 +15,18 @@ import team.router.recycle.web.station.StationRealtimeRequest;
 import team.router.recycle.web.station.StationRealtimeResponse;
 import team.router.recycle.web.station.StationsRealtimeResponse;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class StationService implements ApplicationRunner {
+    private final RedisTemplate<String, Station> redisTemplate;
     private final StationRepository stationRepository;
     private final StationClient client;
     private final ObjectMapper objectMapper;
     private static final String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
 
-    public StationService(StationRepository stationRepository, StationClient client, ObjectMapper objectMapper) {
+    public StationService(RedisTemplate<String, Station> redisTemplate, StationRepository stationRepository, StationClient client, ObjectMapper objectMapper) {
+        this.redisTemplate = redisTemplate;
         this.stationRepository = stationRepository;
         this.objectMapper = objectMapper;
         this.client = client;
@@ -35,15 +35,20 @@ public class StationService implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         stationRepository.truncate();
+        redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
         Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
             String response = client.makeRequest(target);
             try {
                 JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
                 List<Station> stationList = new ArrayList<>(jsonNode.size());
+                Map<String, Station> stationMap = new HashMap<>(jsonNode.size());
                 for (JsonNode node : jsonNode) {
-                    stationList.add(objectMapper.treeToValue(node, Station.class));
+                    Station station = objectMapper.treeToValue(node, Station.class);
+                    stationList.add(station);
+                    stationMap.put(node.get("stationId").asText(), station);
                 }
                 stationRepository.saveAll(stationList);
+                redisTemplate.opsForValue().multiSet(stationMap);
             } catch (JsonProcessingException e) {
                 throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
             }
@@ -62,9 +67,8 @@ public class StationService implements ApplicationRunner {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
                 for (JsonNode node : jsonNode) {
-                    StationRealtimeResponse station = objectMapper.treeToValue(node, StationRealtimeResponse.class);
-                    if (haversine(myLatitude, myLongitude, station.stationLatitude(), station.stationLongitude()) <= radius) {
-                        stationList.add(station);
+                    if (haversine(myLatitude, myLongitude, node.get("stationLatitude").asDouble(), node.get("stationLongitude").asDouble()) <= radius) {
+                        stationList.add(objectMapper.treeToValue(node, StationRealtimeResponse.class));
                     }
                 }
             } catch (JsonProcessingException e) {
@@ -110,9 +114,8 @@ public class StationService implements ApplicationRunner {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
                 for (JsonNode node : jsonNode) {
-                    Station station = objectMapper.treeToValue(node, Station.class);
-                    if (haversine(myLatitude, myLongitude, station.getStationLatitude(), station.getStationLongitude()) <= radius) {
-                        stationList.add(station);
+                    if (haversine(myLatitude, myLongitude, node.get("stationLatitude").asDouble(), node.get("stationLongitude").asDouble()) <= radius) {
+                        stationList.add(objectMapper.treeToValue(node, Station.class));
                     }
                 }
             } catch (JsonProcessingException e) {
@@ -125,15 +128,23 @@ public class StationService implements ApplicationRunner {
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
     }
 
-    public boolean validate(String stationId) {
-        return !stationRepository.existsByStationId(stationId);
+    public boolean isValid(String stationId) {
+        return redisTemplate.hasKey(stationId);
+    }
+
+    public boolean isInvalid(String stationId) {
+        return !isValid(stationId);
     }
 
     public Station findNearestStation(Location location) {
-        return findNearestStation(location.latitude(), location.longitude());
+        List<Station> stations = redisTemplate.opsForValue().multiGet(redisTemplate.keys("*"));
+        Station destinationStation = stations.stream()
+                .min(Comparator.comparingDouble(station -> haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
+                .get();
+        if (haversine(location.latitude(), location.longitude(), destinationStation.getStationLatitude(), destinationStation.getStationLongitude()) > 0.5) {
+            throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 대여소가 없습니다.");
+        }
+        return destinationStation;
     }
-
-    private Station findNearestStation(double latitude, double longitude) {
-        return stationRepository.findNearestStations(latitude, longitude);
-    }
+    
 }

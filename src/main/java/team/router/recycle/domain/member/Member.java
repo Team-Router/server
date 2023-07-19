@@ -40,15 +40,14 @@ public class Member {
     private final Authority authority = Authority.ROLE_USER;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FavoriteStation> favoriteStations = new ArrayList<>();
+    private final List<FavoriteStation> favoriteStations = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<FavoritePlace> favoritePlaces = new ArrayList<>();
+    private final List<FavoritePlace> favoritePlaces = new ArrayList<>();
     
     public void addFavoriteStation(FavoriteStation favoriteStation) {
         favoriteStations.add(favoriteStation);
-
     }
     
     public void deleteFavoriteStation(FavoriteStation favoriteStation) {
