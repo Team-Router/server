@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
+import team.router.recycle.util.GeoUtil;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.station.StationRealtimeRequest;
@@ -67,7 +68,7 @@ public class StationService implements ApplicationRunner {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
                 for (JsonNode node : jsonNode) {
-                    if (haversine(myLatitude, myLongitude, node.get("stationLatitude").asDouble(), node.get("stationLongitude").asDouble()) <= radius) {
+                    if (GeoUtil.haversine(myLatitude, myLongitude, node.get("stationLatitude").asDouble(), node.get("stationLongitude").asDouble()) <= radius) {
                         stationList.add(objectMapper.treeToValue(node, StationRealtimeResponse.class));
                     }
                 }
@@ -81,28 +82,6 @@ public class StationService implements ApplicationRunner {
                 .build();
     }
 
-    private static double haversine(double lat1, double lon1, double lat2, double lon2) {
-        // 지구의 반지름 (단위: km)
-        double radius = 6371;
-
-        // 위도와 경도를 라디안으로 변환
-        double lat1Rad = Math.toRadians(lat1);
-        double lon1Rad = Math.toRadians(lon1);
-        double lat2Rad = Math.toRadians(lat2);
-        double lon2Rad = Math.toRadians(lon2);
-
-        // 위도와 경도의 차이 계산
-        double dlat = lat2Rad - lat1Rad;
-        double dlon = lon2Rad - lon1Rad;
-
-        // Haversine 공식을 사용하여 거리 계산
-        double a = Math.pow(Math.sin(dlat / 2), 2) + Math.cos(lat1Rad) * Math.cos(lat2Rad) * Math.pow(Math.sin(dlon / 2), 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        // 거리를 km 단위로 반환
-        return radius * c;
-    }
-
     public Station findStartStation(Location location) {
         double myLatitude = location.latitude();
         double myLongitude = location.longitude();
@@ -114,7 +93,7 @@ public class StationService implements ApplicationRunner {
             try {
                 JsonNode jsonNode = objectMapper.readTree(response).get("rentBikeStatus").get("row");
                 for (JsonNode node : jsonNode) {
-                    if (haversine(myLatitude, myLongitude, node.get("stationLatitude").asDouble(), node.get("stationLongitude").asDouble()) <= radius) {
+                    if (GeoUtil.haversine(myLatitude, myLongitude, node.get("stationLatitude").asDouble(), node.get("stationLongitude").asDouble()) <= radius) {
                         stationList.add(objectMapper.treeToValue(node, Station.class));
                     }
                 }
@@ -124,8 +103,16 @@ public class StationService implements ApplicationRunner {
         });
         return stationList.stream()
                 .filter(station -> station.getParkingBikeTotCnt() > 0)
-                .min(Comparator.comparingDouble(station -> haversine(myLatitude, myLongitude, station.getStationLatitude(), station.getStationLongitude())))
+                .min(Comparator.comparingDouble(station -> GeoUtil.haversine(myLatitude, myLongitude, station.getStationLatitude(), station.getStationLongitude())))
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
+    }
+
+    public Station findNearestStation(Location location) {
+        List<Station> stations = redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
+        return stations.stream()
+                .filter(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude()) <= 0.5)
+                .min(Comparator.comparingDouble(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
+                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 대여소가 없습니다."));
     }
 
     public boolean isValid(String stationId) {
@@ -136,15 +123,4 @@ public class StationService implements ApplicationRunner {
         return !isValid(stationId);
     }
 
-    public Station findNearestStation(Location location) {
-        List<Station> stations = redisTemplate.opsForValue().multiGet(redisTemplate.keys("*"));
-        Station destinationStation = stations.stream()
-                .min(Comparator.comparingDouble(station -> haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
-                .get();
-        if (haversine(location.latitude(), location.longitude(), destinationStation.getStationLatitude(), destinationStation.getStationLongitude()) > 0.5) {
-            throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 대여소가 없습니다.");
-        }
-        return destinationStation;
-    }
-    
 }
