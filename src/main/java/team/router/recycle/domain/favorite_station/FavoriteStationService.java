@@ -41,7 +41,7 @@ public class FavoriteStationService {
     }
 
     private void validate(String stationId) {
-        if (stationService.validate(stationId)) {
+        if (stationService.isInvalid(stationId)) {
             throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "해당 대여소가 존재하지 않습니다.");
         }
     }

@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team.router.recycle.domain.route.model.Distance;
-import team.router.recycle.domain.route.model.Duration;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationService;
@@ -20,7 +18,6 @@ import team.router.recycle.web.route.GetDirectionsResponse;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -65,9 +62,9 @@ public class RouteService {
 
         String[] profiles = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
         String[] coordinates = {
-                getCoordinates(startLocation.toString(), startStation.getLocation()),
-                getCoordinates(startStation.getLocation(), endStation.getLocation()),
-                getCoordinates(endStation.getLocation(), endLocation.toString())
+                getCoordinates(startLocation.toString(), startStation.toLocationString()),
+                getCoordinates(startStation.toLocationString(), endStation.toLocationString()),
+                getCoordinates(endStation.toLocationString(), endLocation.toString())
         };
 
         List<GetDirectionResponse> getDirectionResponses = new ArrayList<>();
