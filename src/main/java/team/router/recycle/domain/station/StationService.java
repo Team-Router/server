@@ -82,7 +82,7 @@ public class StationService implements ApplicationRunner {
                 .build();
     }
 
-    public Station findStartStation(Location location) {
+    public Station findDepatureStation(Location location) {
         double myLatitude = location.latitude();
         double myLongitude = location.longitude();
         double radius = 0.5;
@@ -104,15 +104,15 @@ public class StationService implements ApplicationRunner {
         return stationList.stream()
                 .filter(station -> station.getParkingBikeTotCnt() > 0)
                 .min(Comparator.comparingDouble(station -> GeoUtil.haversine(myLatitude, myLongitude, station.getStationLatitude(), station.getStationLongitude())))
-                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 자전거가 있는 대여소가 없습니다."));
+                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "출발지 주변에 대여 가능한 자전거가 있는 대여소가 없습니다."));
     }
 
-    public Station findNearestStation(Location location) {
+    public Station findDestinationStation(Location location) {
         List<Station> stations = redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
         return stations.stream()
                 .filter(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude()) <= 0.5)
                 .min(Comparator.comparingDouble(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
-                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "주변에 대여소가 없습니다."));
+                .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "도착지 주변에 반납할 대여소가 없습니다."));
     }
 
     public boolean isValid(String stationId) {
