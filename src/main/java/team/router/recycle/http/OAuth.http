@@ -1,15 +1,15 @@
 GET https://kauth.kakao.com/oauth/authorize?client_id=e5a4437c4ab721d1a8dd1b685a244afb&
-    redirect_uri=http://localhost:8080/oauth/kakao&response_type=code
+    redirect_uri={{context_path}}/oauth/kakao&response_type=code
 
 ###
-POST http://localhost:8080/oauth/kakao
+POST {{context_path}}/oauth/kakao
 Content-Type: application/json
 
 
 {
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
-  "redirectUri": "http://localhost:8080/oauth/kakao",
+  "redirectUri": "{{context_path}}/oauth/kakao",
   "authorizationCode": "QWZd0nMshlKedi8A-xq-8NU4yaFvs57B3eLmiSH7Gsg7abRZhbL4mHE4OpYKFXNiHVhLkQoqJY4AAAGJQTywrw"
 }
 
@@ -20,26 +20,24 @@ Content-Type: application/json
 %}
 
 ###
-
-# client_id=467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com
-# redirect_uri=http://localhost:8080/oauth/google
-# response_type=code
-# scope=openid%20profile%20email
-
-# client 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
 GET https://accounts.google.com/o/oauth2/auth?
     client_id=467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com&
-    redirect_uri=http://localhost:8080/oauth/google&response_type=code&
+    redirect_uri={{context_path}}/oauth/google&response_type=code&
     scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile
 
 ###
-POST http://localhost:8080/oauth/google
+POST {{context_path}}/oauth/google
 Content-Type: application/json
 
 {
   "grantType": "authorization_code",
   "clientId": "467297398680-cl3kk3mssb8hoene9rfrh1jus4c5car1.apps.googleusercontent.com",
   "clientSecret": "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",
-  "redirectUri": "http://localhost:8080/oauth/google",
-  "authorizationCode": "4/0AZEOvhV5ucPfftBzcOVG9tW3SM3GhaVBeQxrbRz7BVMw8GfBXf-m1RoAnK09utDnWSDizg"
+  "redirectUri": "{{context_path}}/oauth/google",
+  "authorizationCode": "4/0AZEOvhVQ7Ci5zjiJh3W0OXP49gefNA9D9yvUqtuGv5JfgHEutwf-tCf-bJd3aW3mt-rBAg"
 }
+
+> {%
+    client.global.set("access_token", response.body.data.accessToken);
+    client.global.set("refresh_token", response.body.data.refreshToken);
+%}
