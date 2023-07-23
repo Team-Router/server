@@ -19,6 +19,7 @@ import team.router.recycle.web.route.GetDirectionsResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 public class RouteService {
@@ -57,25 +58,26 @@ public class RouteService {
         Location startLocation = getDirectionRequest.startLocation();
         Location endLocation = getDirectionRequest.endLocation();
 
-        Station startStation = stationService.findStartStation(startLocation);
-        Station endStation = stationService.findNearestStation(endLocation);
+        Station depatureStation = stationService.findDepatureStation(startLocation);
+        Station destinationStation = stationService.findDestinationStation(endLocation);
 
         String[] profiles = {WALKING_PROFILE, CYCLE_PROFILE, WALKING_PROFILE};
         String[] coordinates = {
-                getCoordinates(startLocation.toString(), startStation.toLocationString()),
-                getCoordinates(startStation.toLocationString(), endStation.toLocationString()),
-                getCoordinates(endStation.toLocationString(), endLocation.toString())
+                getCoordinates(startLocation.toString(), depatureStation.toLocationString()),
+                getCoordinates(depatureStation.toLocationString(), destinationStation.toLocationString()),
+                getCoordinates(destinationStation.toLocationString(), endLocation.toString())
         };
 
         List<GetDirectionResponse> getDirectionResponses = new ArrayList<>();
-
-        for (int i = 0; i < profiles.length; i++) {
-            try {
-                getDirectionResponses.add(newGetDirectionResponse(profiles[i], coordinates[i]));
-            } catch (IOException e) {
-                throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "경로 탐색 서비스가 현재 불가능합니다.");
-            }
-        }
+        IntStream.range(0, profiles.length)
+                .parallel()
+                .forEach(i -> {
+                    try {
+                        getDirectionResponses.add(newGetDirectionResponse(profiles[i], coordinates[i]));
+                    } catch (IOException e) {
+                        throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "경로 탐색 서비스가 현재 불가능합니다.");
+                    }
+                });
 
         return GetDirectionsResponse.builder()
                 .getDirectionsResponses(getDirectionResponses)
