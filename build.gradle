@@ -18,10 +18,6 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    set('springCloudVersion', "2022.0.3")
-}
-
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -54,12 +50,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
     testImplementation 'org.assertj:assertj-core:3.24.2'
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-    }
 }
 
 tasks.named('test') {
