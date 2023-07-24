@@ -1,5 +1,6 @@
 package team.router.recycle.config;
 
+import io.netty.handler.codec.http.cors.CorsConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

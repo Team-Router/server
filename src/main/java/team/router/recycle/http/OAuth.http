@@ -1,5 +1,5 @@
 GET https://kauth.kakao.com/oauth/authorize?client_id=e5a4437c4ab721d1a8dd1b685a244afb&
-    redirect_uri={{context_path}}/oauth/kakao&response_type=code
+    redirect_uri=https://re-cycle-test.vercel.app/oauth/kakao&response_type=code
 
 ###
 POST {{context_path}}/oauth/kakao
