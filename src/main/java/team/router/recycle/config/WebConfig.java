@@ -10,10 +10,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry
                 .addMapping("/**")
-                .allowedOrigins("https://localhost:3000","http://localhost:3000", "https://router-bike.site", "https://re-cycle-test.vercel.app")
+                .allowedOrigins("http://localhost:3000", "https://router-bike.site", "https://re-cycle-test.vercel.app")
                 .allowedMethods("*")
                 .allowedHeaders("*")
-//                .allowCredentials(true)
+                .allowCredentials(true)
                 .maxAge(3000);
     }
 }
