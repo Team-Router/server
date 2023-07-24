@@ -1,14 +1,14 @@
 GET https://kauth.kakao.com/oauth/authorize?client_id=e5a4437c4ab721d1a8dd1b685a244afb&
-    redirect_uri=http://localhost:8080/oauth/kakao&response_type=code
+    redirect_uri={{context_path}}/oauth/kakao&response_type=code
 
 ###
-POST http://localhost:8080/oauth/kakao
+POST {{context_path}}/oauth/kakao
 Content-Type: application/json
 
 {
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
-  "redirectUri": "http://localhost:8080/oauth/kakao",
+  "redirectUri": "{{context_path}}/oauth/kakao",
   "authorizationCode": "R4NKugGbSeE7tRD-Uv3LuUSts9BCVTRNNqDmmKfNadyoRDchyA1ChS2JmkX5X2o1uo-REwo9dJkAAAGJTNBqmA"
 }
 
@@ -18,35 +18,5 @@ Content-Type: application/json
 %}
 
 ###
-POST localhost:8080/place/add
-Content-Type: application/json
-Authorization: Bearer {{access_token}}
-
-{
-  "longitude": 127.30118103,
-  "latitude": 37.30810019,
-  "type": "HOME"
-}
-
-###
-POST localhost:8080/place/add
-Content-Type: application/json
-Authorization: Bearer {{access_token}}
-
-{
-  "longitude": 127.3,
-  "latitude": 37.19,
-  "type": "HOME"
-}
-
-###
-POST http://localhost:8080/favorite/add?stationId=ST-1000
-Authorization: Bearer {{access_token}}
-
-###
-POST http://localhost:8080/favorite/add?stationId=ST-100
-Authorization: Bearer {{access_token}}
-
-###
-DELETE http://localhost:8080/member
+DELETE {{context_path}}/member
 Authorization: Bearer {{access_token}}

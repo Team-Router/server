@@ -1,16 +1,16 @@
 GET https://kauth.kakao.com/oauth/authorize?client_id=e5a4437c4ab721d1a8dd1b685a244afb&
-    redirect_uri=http://localhost:8080/oauth/kakao&response_type=code
+    redirect_uri={{context_path}}/oauth/kakao&response_type=code
 
 ###
-POST http://localhost:8080/oauth/kakao
+POST {{context_path}}/oauth/kakao
 Content-Type: application/json
 
 
 {
   "grantType": "authorization_code",
   "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
-  "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "vpEthWxVgd3SAvXEfyAWUVt0JF2p1dEQAYFtJiOpJVZmIlrdAN_QaHXifsXZvUGVPP_YiwoqJQ4AAAGJTPWU_Q"
+  "redirectUri": "{{context_path}}/oauth/kakao",
+  "authorizationCode": "qRJ3cbZA8SMlUX-P5uz4fxzOrRap0TrBmbDQ26OgIqd7Pju5-4LwF2b8mG_f9h1hm8zwgAo9c5oAAAGJgRnNpQ"
 }
 
 
@@ -21,7 +21,7 @@ Content-Type: application/json
 
 
 ###
-POST localhost:8080/place
+POST {{context_path}}/place
 Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
@@ -32,9 +32,9 @@ Authorization: Bearer {{access_token}}
 }
 
 ###
-DELETE http://localhost:8080/place?favoriteId=3
+DELETE {{context_path}}/place?favoriteId=1
 Authorization: Bearer {{access_token}}
 
 ###
-GET  localhost:8080/place
+GET {{context_path}}/place
 Authorization: Bearer {{access_token}}

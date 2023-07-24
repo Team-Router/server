@@ -1,8 +1,8 @@
 ###
-POST http://localhost:8080/station/init
+POST {{context_path}}/station/init
 
 ###
-GET http://localhost:8080/station/realtime
+POST {{context_path}}/station/realtime
 Content-Type: application/json
 
 {

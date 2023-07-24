@@ -1,24 +1,5 @@
-GET https://kauth.kakao.com/oauth/authorize?client_id=e5a4437c4ab721d1a8dd1b685a244afb&
-    redirect_uri=http://localhost:8080/oauth/kakao&response_type=code
-
 ###
-POST http://localhost:8080/oauth/kakao
-Content-Type: application/json
-
-{
-  "grantType": "authorization_code",
-  "clientId": "e5a4437c4ab721d1a8dd1b685a244afb",
-  "redirectUri": "http://localhost:8080/oauth/kakao",
-  "authorizationCode": "3btwLMa9BdtPGBz0FBQSD2nM4rzd4vzeKOszgupjhWsHHeOuQpPfKJnxATk6r-GJD0zPygo9cxgAAAGJH2gThg"
-}
-
-> {%
-    client.global.set("access_token", response.body.accessToken);
-    client.global.set("refresh_token", response.body.refreshToken);
-%}
-
-###
-POST http://localhost:8080/route/cycle
+POST {{context_path}}/route/cycle
 Content-Type: application/json
 
 {
@@ -33,7 +14,7 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:8080/route/walk
+POST {{context_path}}/route/walk
 Content-Type: application/json
 
 {
