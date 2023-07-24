@@ -42,7 +42,7 @@ public class SecurityConfig {
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/actuator").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/member/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/favorite/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/place/**").hasAuthority("ROLE_USER")
