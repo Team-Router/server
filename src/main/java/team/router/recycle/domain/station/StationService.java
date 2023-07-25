@@ -33,6 +33,12 @@ public class StationService implements ApplicationRunner {
         this.client = client;
     }
 
+    /**
+     * @param args incoming application arguments (unused)
+     * @throws RecycleException 따릉이 API 서버가 응답하지 않을 경우
+     *                          <p>
+     *                          따릉이 API 서버에서 대여소 정보를 받아와서 Redis에 저장
+     */
     @Override
     public void run(ApplicationArguments args) {
         stationRepository.truncate();
@@ -56,6 +62,11 @@ public class StationService implements ApplicationRunner {
         });
     }
 
+    /**
+     * @param stationRealtimeRequest 사용자의 현재 위치
+     * @return 사용자의 현재 위치에서 반경 500m 이내에 있는 대여소 정보
+     * @throws RecycleException 따릉이 API 서버가 응답하지 않을 경우
+     */
     @Transactional(readOnly = true)
     public StationsRealtimeResponse getRealtimeStation(StationRealtimeRequest stationRealtimeRequest) {
         double myLatitude = stationRealtimeRequest.latitude();
@@ -82,6 +93,12 @@ public class StationService implements ApplicationRunner {
                 .build();
     }
 
+    /**
+     * @param location 위치 정보
+     * @return 위치에서 반경 500m 이내에 있는 대여 가능한 대여소 중 가장 가까운 대여소 정보
+     * @throws RecycleException 따릉이 API 서버가 응답하지 않을 경우
+     * @throws RecycleException 반경 500m 이내에 대여 가능한 대여소가 없을 경우
+     */
     public Station findDepatureStation(Location location) {
         double myLatitude = location.latitude();
         double myLongitude = location.longitude();
@@ -107,6 +124,11 @@ public class StationService implements ApplicationRunner {
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "출발지 주변에 대여 가능한 자전거가 있는 대여소가 없습니다."));
     }
 
+    /**
+     * @param location 위치 정보
+     * @return 위치에서 반경 500m 이내에 있는 반납 가능한 대여소 중 가장 가까운 대여소 정보
+     * @throws RecycleException 반경 500m 이내에 반납 가능한 대여소가 없을 경우
+     */
     public Station findDestinationStation(Location location) {
         List<Station> stations = redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
         return stations.stream()
