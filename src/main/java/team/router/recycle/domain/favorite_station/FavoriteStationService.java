@@ -1,6 +1,8 @@
 package team.router.recycle.domain.favorite_station;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.member.Member;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@CacheConfig(cacheNames = "favoriteStations")
 public class FavoriteStationService {
 
     private final FavoriteStationRepository favoriteStationRepository;
@@ -60,6 +63,7 @@ public class FavoriteStationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "#memberId")
     public FavoriteStationsResponse findAllFavoriteStationByMemberId(Long memberId) {
         List<Station> stations = favoriteStationRepository.findAllByMemberId(memberId);
         return FavoriteStationsResponse.builder()
