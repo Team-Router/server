@@ -23,7 +23,7 @@ public class StationService implements ApplicationRunner {
     private final RedisTemplate<String, Station> redisTemplate;
     private final StationRepository stationRepository;
     private final StationClient client;
-    private final DajeonStationClient dajeonStationClient;
+    private final DaejeonStationClient daejeonStationClient;
     private final ObjectMapper objectMapper;
     private static final String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
     
@@ -57,21 +57,21 @@ public class StationService implements ApplicationRunner {
             }
         });
         // dejeon
-        String dajeonResponse = dajeonStationClient.makeRequest();
+        String daejeonResponse = daejeonStationClient.makeRequest();
         try {
-            JsonNode dajeonJsonNode = objectMapper.readTree(dajeonResponse).get("results");
-            List<Station> dajeonStationList = new ArrayList<>(dajeonJsonNode.size());
-            Map<String, Station> dajeonStationMap = new HashMap<>(dajeonJsonNode.size());
-            for (JsonNode node : dajeonJsonNode) {
+            JsonNode daejeonJsonNode = objectMapper.readTree(daejeonResponse).get("results");
+            List<Station> daejeonStationList = new ArrayList<>(daejeonJsonNode.size());
+            Map<String, Station> daejeonStationMap = new HashMap<>(daejeonJsonNode.size());
+            for (JsonNode node : daejeonJsonNode) {
                 Station station = jsonToStation(node);
-                if (!isDajeon(station.getStationLatitude(), station.getStationLongitude())) {
+                if (!isDaejeon(station.getStationLatitude(), station.getStationLongitude())) {
                     continue;
                 }
-                dajeonStationList.add(station);
-                dajeonStationMap.put(station.getStationId(), station);
+                daejeonStationList.add(station);
+                daejeonStationMap.put(station.getStationId(), station);
             }
-            stationRepository.saveAll(dajeonStationList);
-            redisTemplate.opsForValue().multiSet(dajeonStationMap);
+            stationRepository.saveAll(daejeonStationList);
+            redisTemplate.opsForValue().multiSet(daejeonStationMap);
         } catch (JsonProcessingException e) {
             throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "타슈 API 서버가 응답하지 않습니다.");
         }
@@ -91,7 +91,7 @@ public class StationService implements ApplicationRunner {
         List<StationRealtimeResponse> stationList = new ArrayList<>();
         
         // seoul
-        if (!isDajeon(myLatitude, myLongitude)) {
+        if (!isDaejeon(myLatitude, myLongitude)) {
             Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
                 String response = client.makeRequest(target);
                 try {
@@ -106,10 +106,10 @@ public class StationService implements ApplicationRunner {
                 }
             });
         } else {
-            // dajeon
-            String dajeonResponse = dajeonStationClient.makeRequest();
+            // daejeon
+            String daejeonResponse = daejeonStationClient.makeRequest();
             try {
-                JsonNode jsonNode = objectMapper.readTree(dajeonResponse).get("results");
+                JsonNode jsonNode = objectMapper.readTree(daejeonResponse).get("results");
                 for (JsonNode node : jsonNode) {
                     double latitude = node.get("x_pos").asDouble();
                     double longitude = node.get("y_pos").asDouble();
@@ -139,7 +139,7 @@ public class StationService implements ApplicationRunner {
         double radius = 0.5;
         List<Station> stationList = new ArrayList<>();
         // seoul
-        if (!isDajeon(myLatitude, myLongitude)) {
+        if (!isDaejeon(myLatitude, myLongitude)) {
             Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
                 String response = client.makeRequest(target);
                 try {
@@ -154,10 +154,10 @@ public class StationService implements ApplicationRunner {
                 }
             });
         } else {
-            // dajeon
-            String dajeonResponse = dajeonStationClient.makeRequest();
+            // daejeon
+            String daejeonResponse = daejeonStationClient.makeRequest();
             try {
-                JsonNode jsonNode = objectMapper.readTree(dajeonResponse).get("results");
+                JsonNode jsonNode = objectMapper.readTree(daejeonResponse).get("results");
                 for (JsonNode node : jsonNode) {
                     double latitude = node.get("x_pos").asDouble();
                     double longitude = node.get("y_pos").asDouble();
@@ -232,7 +232,7 @@ public class StationService implements ApplicationRunner {
      * @param lng 경도
      * @return 대전 내에 있는지 여부
      */
-    public boolean isDajeon(double lat, double lng) {
+    public boolean isDaejeon(double lat, double lng) {
         double MAX_LAT = 36.4969715; // 죽암휴게소
         double MIN_LAT = 36.1643402; // 만인산농협
         double MAX_LNG = 127.6108633; // 옥천선사공원
