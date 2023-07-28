@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import team.router.recycle.domain.jwt.TokenProvider;
 import team.router.recycle.web.auth.TokenRequest;
 import team.router.recycle.web.auth.TokenResponse;
+import team.router.recycle.web.exception.ErrorCode;
+import team.router.recycle.web.exception.RecycleException;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +23,8 @@ public class RefreshTokenService implements TokenService {
 
     @Override
     public Token issueToken(String key, String value) {
+        tokenRepository.findByKey(key)
+                .ifPresent(tokenRepository::delete);
         Token token = RefreshToken.builder()
                 .key(key)
                 .value(value)
@@ -31,12 +35,6 @@ public class RefreshTokenService implements TokenService {
         return token;
     }
 
-    @Override
-    public Token findToken(String key) {
-        return tokenRepository.findFirstByKeyOrderByIdDesc(key)
-                .orElseThrow(() -> new BadCredentialsException("로그아웃 된 사용자입니다."));
-    }
-
     @Transactional
     public TokenResponse reissue(TokenRequest tokenRequestDto) {
         if (!tokenProvider.validateToken(tokenRequestDto.refreshToken())) {
@@ -44,7 +42,9 @@ public class RefreshTokenService implements TokenService {
         }
         Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.accessToken());
 
-        Token refreshToken = findToken(authentication.getName());
+        Token refreshToken = tokenRepository.findByKey(authentication.getName()).orElseThrow(
+                () -> new RecycleException(ErrorCode.UNAUTHORIZED,"로그아웃 된 사용자입니다.")
+        );
 
         if (refreshToken.isNotEqualTo(tokenRequestDto.refreshToken())) {
             throw new BadCredentialsException("토큰의 유저 정보가 일치하지 않습니다.");
