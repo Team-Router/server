@@ -63,7 +63,7 @@ public class StationService implements ApplicationRunner {
             List<Station> daejeonStationList = new ArrayList<>(daejeonJsonNode.size());
             Map<String, Station> daejeonStationMap = new HashMap<>(daejeonJsonNode.size());
             for (JsonNode node : daejeonJsonNode) {
-                Station station = jsonToStation(node);
+                Station station = objectMapper.treeToValue(node,Station.class);
                 if (!isDaejeon(station.getStationLatitude(), station.getStationLongitude())) {
                     continue;
                 }
@@ -114,7 +114,7 @@ public class StationService implements ApplicationRunner {
                     double latitude = node.get("x_pos").asDouble();
                     double longitude = node.get("y_pos").asDouble();
                     if (GeoUtil.haversine(myLatitude, myLongitude, latitude, longitude) <= radius) {
-                        stationList.add(jsonToRealtimeStation(node));
+                        stationList.add(objectMapper.treeToValue(node, StationRealtimeResponse.class));
                     }
                 }
             } catch (JsonProcessingException e) {
@@ -162,7 +162,7 @@ public class StationService implements ApplicationRunner {
                     double latitude = node.get("x_pos").asDouble();
                     double longitude = node.get("y_pos").asDouble();
                     if (GeoUtil.haversine(myLatitude, myLongitude, latitude, longitude) <= radius) {
-                        stationList.add(jsonToStation(node));
+                        stationList.add(objectMapper.treeToValue(node, Station.class));
                     }
                 }
             } catch (JsonProcessingException e) {
@@ -196,37 +196,6 @@ public class StationService implements ApplicationRunner {
     public boolean isInvalid(String stationId) {
         return !isValid(stationId);
     }
-    
-    /**
-     * @param node 타슈 API 서버에서 받아온 대여소 정보
-     * @return Station
-     */
-    public Station jsonToStation(JsonNode node) {
-        String stationId = node.get("id").asText().replace("ST", "DJ-");
-        return Station.builder()
-                .stationName(node.get("name").asText())
-                .stationId(stationId)
-                .stationLatitude(node.get("x_pos").asDouble())
-                .stationLongitude(node.get("y_pos").asDouble())
-                .parkingBikeTotCnt(node.get("parking_count").asInt())
-                .build();
-    }
-    
-    /**
-     * @param node 타슈 API 서버에서 받아온 대여소 정보
-     * @return StationRealtimeResponse
-     */
-    public StationRealtimeResponse jsonToRealtimeStation(JsonNode node) {
-        String stationId = node.get("id").asText().replace("ST", "DJ-");
-        return StationRealtimeResponse.builder()
-                .stationName(node.get("name").asText())
-                .stationId(stationId)
-                .stationLatitude(node.get("x_pos").asDouble())
-                .stationLongitude(node.get("y_pos").asDouble())
-                .parkingBikeTotCnt(node.get("parking_count").asInt())
-                .build();
-    }
-    
     /**
      * @param lat 위도
      * @param lng 경도

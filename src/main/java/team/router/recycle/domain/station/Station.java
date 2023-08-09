@@ -1,7 +1,7 @@
 package team.router.recycle.domain.station;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,20 +21,20 @@ public class Station {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonProperty("stationName")
+    @JsonAlias({"stationName", "name"})
     private String stationName;
 
-    @JsonProperty("parkingBikeTotCnt")
+    @JsonAlias({"parkingBikeTotCnt", "parking_count"})
     @Transient
     private Integer parkingBikeTotCnt;
 
-    @JsonProperty("stationLatitude")
+    @JsonAlias({"stationLatitude", "x_pos"})
     private Double stationLatitude;
 
-    @JsonProperty("stationLongitude")
+    @JsonAlias({"stationLongitude", "y_pos"})
     private Double stationLongitude;
 
-    @JsonProperty("stationId")
+    @JsonAlias({"stationId", "id"})
     private String stationId;
 
     // to FavoriteStationResponse

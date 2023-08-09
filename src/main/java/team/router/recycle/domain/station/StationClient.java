@@ -10,6 +10,7 @@ public class StationClient {
 
     private final WebClient client;
     private final String SEOUL_API_KEY;
+    private static final String BIKE_PATH = "/json/bikeList";
 
     public StationClient(WebClient client, @Value("${client.seoul.key}") String seoulApiKey) {
         SEOUL_API_KEY = seoulApiKey;
@@ -23,7 +24,6 @@ public class StationClient {
                 .build();
     }
     public String makeRequest(String target) {
-        String BIKE_PATH = "/json/bikeList";
         String requestUri = SEOUL_API_KEY + BIKE_PATH + target;
         return client.get()
                 .uri(requestUri)
