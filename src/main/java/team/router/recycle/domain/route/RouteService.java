@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.station.Station;
-import team.router.recycle.domain.station.StationService;
+import team.router.recycle.domain.station.SeoulStationService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.route.GetDirectionRequest;
@@ -26,11 +26,11 @@ public class RouteService {
 
     private static final String WALKING_PROFILE = "walking/";
     private static final String CYCLE_PROFILE = "cycling/";
-    private final StationService stationService;
+    private final SeoulStationService stationService;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
 
-    public RouteService(StationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
+    public RouteService(SeoulStationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
         this.stationService = stationService;
         this.routeClient = routeClient;
         this.objectMapper = objectMapper.registerModule(new SimpleModule().addDeserializer(GetDirectionResponse.class, new GetDirectionResponseDeserializer()));
