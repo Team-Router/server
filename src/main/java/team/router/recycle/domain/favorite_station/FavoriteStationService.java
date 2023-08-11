@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.domain.station.Station;
-import team.router.recycle.domain.station.SeoulStationService;
+import team.router.recycle.domain.station.StationService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.favorite_station.FavoriteStationsResponse;
@@ -23,7 +23,7 @@ public class FavoriteStationService {
 
     private final FavoriteStationRepository favoriteStationRepository;
     private final MemberService memberService;
-    private final SeoulStationService stationService;
+    private final StationService stationService;
 
     @Transactional
     public void addFavoriteStation(String stationId, Long memberId) {

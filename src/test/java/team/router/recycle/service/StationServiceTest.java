@@ -7,7 +7,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
-import team.router.recycle.domain.station.SeoulStationService;
+import team.router.recycle.domain.station.StationService;
 import team.router.recycle.web.station.StationRealtimeRequest;
 import team.router.recycle.web.station.StationsRealtimeResponse;
 
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class StationServiceTest {
 
     @Autowired
-    private SeoulStationService stationService;
+    private StationService stationService;
 
     @Nested
     @DisplayName("실시간 대여소 조회")

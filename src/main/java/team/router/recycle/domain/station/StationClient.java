@@ -6,13 +6,12 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
-public class SeoulStationClient {
+public class StationClient {
 
     private final WebClient client;
     private final String SEOUL_API_KEY;
-    private static final String BIKE_PATH = "/json/bikeList";
 
-    public SeoulStationClient(WebClient client, @Value("${client.seoul.key}") String seoulApiKey) {
+    public StationClient(WebClient client, @Value("${client.seoul.key}") String seoulApiKey) {
         SEOUL_API_KEY = seoulApiKey;
         String BASE_URL = "http://openapi.seoul.go.kr:8088";
         this.client = client
@@ -24,6 +23,7 @@ public class SeoulStationClient {
                 .build();
     }
     public String makeRequest(String target) {
+        String BIKE_PATH = "/json/bikeList";
         String requestUri = SEOUL_API_KEY + BIKE_PATH + target;
         return client.get()
                 .uri(requestUri)

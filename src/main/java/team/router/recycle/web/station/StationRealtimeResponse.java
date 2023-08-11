@@ -1,19 +1,19 @@
 package team.router.recycle.web.station;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonGetter;
 import lombok.Builder;
 
 @Builder
 public record StationRealtimeResponse(
-        @JsonAlias({"stationName", "name"})
-        String name,
-        @JsonAlias({"parkingBikeTotCnt", "parking_count"})
-        Integer count,
-        @JsonAlias({"stationLatitude", "x_pos"})
-        Double latitude,
-        @JsonAlias({"stationLongitude", "y_pos"})
-        Double longitude,
-        @JsonAlias({"stationId", "id"})
-        String id
+        @JsonGetter("name")
+        String stationName,
+        @JsonGetter("count")
+        Integer parkingBikeTotCnt,
+        @JsonGetter("latitude")
+        Double stationLatitude,
+        @JsonGetter("longitude")
+        Double stationLongitude,
+        @JsonGetter("id")
+        String stationId
 ) {
 }
