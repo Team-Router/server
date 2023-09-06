@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.oauth.OAuthClient;
 import team.router.recycle.domain.oauth.OauthProfileResponse;
@@ -18,13 +18,13 @@ import java.util.Objects;
 public class KakaoClient implements OAuthClient {
     @Value("${oauth.kakao.url.auth}")
     private String authUrl;
-    
+
     @Value("${oauth.kakao.url.api}")
     private String apiUrl;
-    
-    private final WebClient tokenClient;
-    private final WebClient infoClient;
-    
+
+    private final RestClient tokenClient;
+    private final RestClient infoClient;
+
     @Override
     public String getOauthAccessToken(OauthLoginRequest oauthLoginRequest) {
         return Objects.requireNonNull(tokenClient
@@ -35,13 +35,12 @@ public class KakaoClient implements OAuthClient {
                         .uri("/oauth/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .acceptCharset(StandardCharsets.UTF_8)
-                        .bodyValue(oauthLoginRequest.makeBody())
+                        .body(oauthLoginRequest.makeBody())
                         .retrieve()
-                        .bodyToMono(KakaoToken.class)
-                        .block())
+                        .body(KakaoToken.class))
                 .accessToken();
     }
-    
+
     @Override
     public OauthProfileResponse getOauthProfile(String accessToken) {
         return infoClient.mutate()
@@ -53,10 +52,9 @@ public class KakaoClient implements OAuthClient {
                 .acceptCharset(StandardCharsets.UTF_8)
                 .attribute("property_keys", "[\"kakao_account.email\"]")
                 .retrieve()
-                .bodyToMono(KakaoMyInfo.class)
-                .block();
+                .body(KakaoMyInfo.class);
     }
-    
+
     @Override
     public Member.Type getMemberType() {
         return Member.Type.KAKAO;
