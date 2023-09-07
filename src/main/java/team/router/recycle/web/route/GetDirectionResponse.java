@@ -36,7 +36,7 @@ public record GetDirectionResponse(
     }
 
     public static final GetDirectionResponse EMPTY = GetDirectionResponse.of(
-            RoutingProfile.valueOf(""),
+            null,
             Duration.ZERO,
             Distance.ZERO,
             List.of()
