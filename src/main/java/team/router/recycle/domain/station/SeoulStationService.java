@@ -143,4 +143,9 @@ public class SeoulStationService implements StationService {
     public boolean isInvalid(String stationId) {
         return stationRedisService.isInvalid(stationId);
     }
+
+    @Override
+    public City handledCity() {
+        return City.SEOUL;
+    }
 }

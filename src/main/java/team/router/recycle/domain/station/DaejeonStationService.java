@@ -125,4 +125,9 @@ public class DaejeonStationService implements StationService {
 
         return lat >= MIN_LAT && lat <= MAX_LAT && lng >= MIN_LNG && lng <= MAX_LNG;
     }
+
+    @Override
+    public City handledCity() {
+        return City.DAEJEON;
+    }
 }

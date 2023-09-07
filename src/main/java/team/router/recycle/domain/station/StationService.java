@@ -17,4 +17,6 @@ public interface StationService extends ApplicationRunner, StationRedisService {
     Station findDepatureStation(Location location);
 
     Station findDestinationStation(Location location);
+
+    City handledCity();
 }

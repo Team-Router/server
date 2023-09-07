@@ -34,6 +34,10 @@ public class Station {
     @JsonAlias({"stationId", "id"})
     private String stationId;
 
+    public Station(String stationId) {
+        this.stationId = stationId;
+    }
+
     public String toLocationString() {
         return stationLongitude + "," + stationLatitude;
     }
