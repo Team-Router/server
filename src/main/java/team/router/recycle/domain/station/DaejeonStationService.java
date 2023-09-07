@@ -69,10 +69,7 @@ public class DaejeonStationService implements StationService {
         } catch (JsonProcessingException e) {
             throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "타슈 API 서버가 응답하지 않습니다.");
         }
-        return StationsRealtimeResponse.builder()
-                .count(stationList.size())
-                .stationRealtimeResponses(stationList)
-                .build();
+        return StationsRealtimeResponse.from(stationList);
     }
 
     @Override

@@ -86,10 +86,7 @@ public class SeoulStationService implements StationService {
             }
         });
 
-        return StationsRealtimeResponse.builder()
-                .count(stationList.size())
-                .stationRealtimeResponses(stationList)
-                .build();
+        return StationsRealtimeResponse.from(stationList);
     }
 
     /**

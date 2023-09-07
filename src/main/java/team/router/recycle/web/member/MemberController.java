@@ -17,7 +17,7 @@ public class MemberController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> memberDelete(){
+    public ResponseEntity<?> memberDelete() {
         memberService.delete(SecurityUtil.getCurrentMemberId());
         return ResponseEntity.ok().build();
     }

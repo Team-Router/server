@@ -19,6 +19,7 @@ public class SeoulStationClient {
                 .baseUrl(BASE_URL)
                 .build();
     }
+
     public String makeRequest(String target) {
         String requestUri = SEOUL_API_KEY + BIKE_PATH + target;
         return client.get()

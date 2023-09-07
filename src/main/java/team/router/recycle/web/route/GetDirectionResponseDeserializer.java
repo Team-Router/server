@@ -22,11 +22,11 @@ public class GetDirectionResponseDeserializer extends JsonDeserializer<GetDirect
             locations.add(new Location(coordinate.get(1).asDouble(),
                     coordinate.get(0).asDouble()));
         }
-        return GetDirectionResponse.builder()
-                .routingProfile(RoutingProfile.valueOf(node.get("weight_name").asText()))
-                .duration(new Duration(node.get("duration").asInt()))
-                .distance(new Distance(node.get("distance").asInt()))
-                .locations(locations)
-                .build();
+        return GetDirectionResponse.of(
+                RoutingProfile.valueOf(node.get("weight_name").asText()),
+                new Duration(node.get("duration").asInt()),
+                new Distance(node.get("distance").asInt()),
+                locations
+        );
     }
 }

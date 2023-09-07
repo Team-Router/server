@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
-import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.SeoulStationService;
+import team.router.recycle.domain.station.Station;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.route.GetDirectionRequest;
@@ -79,9 +79,7 @@ public class RouteService {
                     }
                 });
 
-        return GetDirectionsResponse.builder()
-                .getDirectionsResponses(getDirectionResponses)
-                .build();
+        return GetDirectionsResponse.from(getDirectionResponses);
     }
 
     private static String getCoordinates(String from, String to) {

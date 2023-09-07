@@ -1,12 +1,12 @@
 package team.router.recycle.web.favorite_station;
 
-import lombok.Builder;
-
 import java.util.List;
 
-@Builder
 public record FavoriteStationsResponse(
         Integer count,
         List<FavoriteStationResponse> favoriteStationResponses
 ) {
+    public static FavoriteStationsResponse of(Integer count, List<FavoriteStationResponse> favoriteStationResponses) {
+        return new FavoriteStationsResponse(count, favoriteStationResponses);
+    }
 }

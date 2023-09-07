@@ -8,10 +8,10 @@ import java.util.Optional;
 
 @Repository
 public interface FavoritePlaceRepository extends JpaRepository<FavoritePlace, Long> {
-    
+
     boolean existsFavoritePlaceByNameAndLatitudeAndLongitudeAndMemberId(String name, Double latitude, Double longitude, Long memberId);
-    
+
     List<FavoritePlace> findAllByMemberId(Long memberId);
-    
+
     Optional<FavoritePlace> findByName(String name);
 }

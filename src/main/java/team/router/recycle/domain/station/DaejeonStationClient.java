@@ -6,10 +6,10 @@ import org.springframework.web.client.RestClient;
 
 @Component
 public class DaejeonStationClient {
-    
+
     private final RestClient client;
     private final String DAEJEON_API_KEY;
-    
+
     public DaejeonStationClient(RestClient client, @Value("${client.daejeon.key}") String daejeonApiKey) {
         DAEJEON_API_KEY = daejeonApiKey;
         String BASE_URL = "https://bikeapp.tashu.or.kr:50041/v1/openapi/station";
@@ -19,7 +19,7 @@ public class DaejeonStationClient {
                 .defaultHeader("api-token", DAEJEON_API_KEY)
                 .build();
     }
-    
+
     public String makeRequest() {
         return client.get()
                 .retrieve()

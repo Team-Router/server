@@ -1,12 +1,12 @@
 package team.router.recycle.web.station;
 
-import lombok.Builder;
-
 import java.util.List;
 
-@Builder
 public record StationsRealtimeResponse(
         Integer count,
         List<StationRealtimeResponse> stationRealtimeResponses
 ) {
+    public static StationsRealtimeResponse from(List<StationRealtimeResponse> stationList) {
+        return new StationsRealtimeResponse(stationList.size(), stationList);
+    }
 }

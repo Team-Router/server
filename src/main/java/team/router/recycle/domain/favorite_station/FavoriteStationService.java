@@ -7,10 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.member.MemberService;
-import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.SeoulStationService;
+import team.router.recycle.domain.station.Station;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
+import team.router.recycle.web.favorite_station.FavoriteStationResponse;
 import team.router.recycle.web.favorite_station.FavoriteStationsResponse;
 
 import java.util.List;
@@ -30,10 +31,7 @@ public class FavoriteStationService {
         validate(stationId);
         Member member = memberService.getById(memberId);
 
-        FavoriteStation favoriteStation = FavoriteStation.builder()
-                .member(member)
-                .stationId(stationId)
-                .build();
+        FavoriteStation favoriteStation = FavoriteStation.of(stationId, member);
 
         if (favoriteStationRepository.existsByStationIdAndMemberId(stationId, memberId)) {
             throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, favoriteStation.getStationId() + "는 이미 즐겨찾기에 추가된 대여소입니다.");
@@ -66,12 +64,10 @@ public class FavoriteStationService {
     @Cacheable(key = "#memberId")
     public FavoriteStationsResponse findAllFavoriteStationByMemberId(Long memberId) {
         List<Station> stations = favoriteStationRepository.findAllByMemberId(memberId);
-        return FavoriteStationsResponse.builder()
-                .count(stations.size())
-                .favoriteStationResponses(
-                        stations.stream()
-                                .map(Station::toFavoriteStationResponse)
-                                .collect(Collectors.toList()))
-                .build();
+        return FavoriteStationsResponse.of(
+                stations.size(),
+                stations.stream()
+                        .map(FavoriteStationResponse::from)
+                        .collect(Collectors.toList()));
     }
 }

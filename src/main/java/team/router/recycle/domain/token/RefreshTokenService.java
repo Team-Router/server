@@ -25,11 +25,7 @@ public class RefreshTokenService implements TokenService {
     public Token issueToken(String key, String value) {
         tokenRepository.findByKey(key)
                 .ifPresent(tokenRepository::delete);
-        Token token = RefreshToken.builder()
-                .key(key)
-                .value(value)
-                .expiredAt(LocalDateTime.now().plusWeeks(2))
-                .build();
+        Token token = RefreshToken.of(key, value, LocalDateTime.now().plusWeeks(2));
 
         tokenRepository.save(token);
         return token;
@@ -43,7 +39,7 @@ public class RefreshTokenService implements TokenService {
         Authentication authentication = tokenProvider.getAuthentication(tokenRequestDto.accessToken());
 
         Token refreshToken = tokenRepository.findByKey(authentication.getName()).orElseThrow(
-                () -> new RecycleException(ErrorCode.UNAUTHORIZED,"로그아웃 된 사용자입니다.")
+                () -> new RecycleException(ErrorCode.UNAUTHORIZED, "로그아웃 된 사용자입니다.")
         );
 
         if (refreshToken.isNotEqualTo(tokenRequestDto.refreshToken())) {

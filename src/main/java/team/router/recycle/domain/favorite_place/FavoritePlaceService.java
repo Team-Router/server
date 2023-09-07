@@ -13,34 +13,28 @@ import team.router.recycle.web.favorite_place.FavoritePlaceRequest;
 import team.router.recycle.web.favorite_place.FavoritePlacesResponse;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @CacheConfig(cacheNames = "favoritePlace")
 public class FavoritePlaceService {
-    
+
     private final FavoritePlaceRepository favoritePlaceRepository;
     private final MemberService memberService;
-    
+
     @Transactional
     public void addFavoritePlace(Long memberId, FavoritePlaceRequest request) {
         Member member = memberService.getById(memberId);
         String name = request.name();
         Double latitude = request.latitude();
         Double longitude = request.longitude();
-        
+
         if (favoritePlaceRepository.existsFavoritePlaceByNameAndLatitudeAndLongitudeAndMemberId(name, latitude, longitude, memberId)) {
             throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, "이미 저장된 장소 입니다.");
         }
-        
-        FavoritePlace favoritePlace = FavoritePlace.builder()
-                .name(name)
-                .longitude(longitude)
-                .latitude(latitude)
-                .member(member)
-                .build();
-        
+
+        FavoritePlace favoritePlace = FavoritePlace.of(request, member);
+
         if (name.equals("HOME") || name.equals("OFFICE")) {
             FavoritePlace existingPlace = favoritePlaceRepository.findByName(name).orElse(null);
             if (existingPlace != null) {
@@ -48,7 +42,7 @@ public class FavoritePlaceService {
                 favoritePlaceRepository.delete(existingPlace);
             }
         }
-        
+
         member.addFavoritePlace(favoritePlace);
         favoritePlaceRepository.save(favoritePlace);
     }
@@ -67,13 +61,6 @@ public class FavoritePlaceService {
     @Cacheable(key = "#memberId")
     public FavoritePlacesResponse findAllFavoritePlace(Long memberId) {
         List<FavoritePlace> favoritePlaces = favoritePlaceRepository.findAllByMemberId(memberId);
-        return FavoritePlacesResponse.builder()
-                .count(favoritePlaces.size())
-                .favoritePlaces(favoritePlaces
-                        .stream()
-                        .map(FavoritePlace::toFavoritePlaceResponse)
-                        .collect(Collectors.toList()))
-                .build();
-
+        return FavoritePlacesResponse.from(favoritePlaces);
     }
 }
