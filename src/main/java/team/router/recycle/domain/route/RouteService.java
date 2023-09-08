@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationService;
+import team.router.recycle.domain.station.StationServiceDelegator;
+import team.router.recycle.util.GeoUtil;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.route.GetDirectionRequest;
@@ -26,19 +28,19 @@ public class RouteService {
 
     private static final String WALKING_PROFILE = "walking/";
     private static final String CYCLE_PROFILE = "cycling/";
-    private final StationService stationService;
+    private final StationServiceDelegator stationServiceDelegator;
     private final RouteClient routeClient;
     private final ObjectMapper objectMapper;
 
-    public RouteService(StationService stationService, RouteClient routeClient, ObjectMapper objectMapper) {
-        this.stationService = stationService;
+    public RouteService(StationServiceDelegator stationServiceDelegator, RouteClient routeClient, ObjectMapper objectMapper) {
+        this.stationServiceDelegator = stationServiceDelegator;
         this.routeClient = routeClient;
         this.objectMapper = objectMapper.registerModule(new SimpleModule().addDeserializer(GetDirectionResponse.class, new GetDirectionResponseDeserializer()));
     }
 
     @Transactional(readOnly = true)
     public GetDirectionResponse getWalkDirection(GetDirectionRequest getDirectionRequest) {
-        if (getDirectionRequest.isInvalidWalkRequest(getDirectionRequest)) {
+        if (isInvalidWalkRequest(getDirectionRequest)) {
             return GetDirectionResponse.EMPTY;
         }
         String coordinates = getCoordinates(getDirectionRequest.startLocation().toString(), getDirectionRequest.endLocation().toString());
@@ -52,11 +54,13 @@ public class RouteService {
 
     @Transactional(readOnly = true)
     public GetDirectionsResponse getCycleDirection(GetDirectionRequest getDirectionRequest) {
-        if (getDirectionRequest.isInvalidCycleRequest(getDirectionRequest)) {
+        if (isInvalidCycleRequest(getDirectionRequest)) {
             return GetDirectionsResponse.EMPTY;
         }
         Location startLocation = getDirectionRequest.startLocation();
         Location endLocation = getDirectionRequest.endLocation();
+
+        StationService stationService = stationServiceDelegator.getStationServiceForGetDirectionRequest(getDirectionRequest);
 
         Station depatureStation = stationService.findDepatureStation(startLocation);
         Station destinationStation = stationService.findDestinationStation(endLocation);
@@ -79,9 +83,7 @@ public class RouteService {
                     }
                 });
 
-        return GetDirectionsResponse.builder()
-                .getDirectionsResponses(getDirectionResponses)
-                .build();
+        return GetDirectionsResponse.from(getDirectionResponses);
     }
 
     private static String getCoordinates(String from, String to) {
@@ -94,5 +96,15 @@ public class RouteService {
 
     private JsonNode getRoutes(String profile, String coordinate) throws JsonProcessingException {
         return objectMapper.readTree(routeClient.getRouteInfo(profile, coordinate)).get("routes").get(0);
+    }
+
+    public boolean isInvalidCycleRequest(GetDirectionRequest request) {
+        return GeoUtil.haversine(request.startLocation().latitude(), request.startLocation().longitude(),
+                request.endLocation().latitude(), request.endLocation().longitude()) < 0.5;
+    }
+
+    public boolean isInvalidWalkRequest(GetDirectionRequest request) {
+        return GeoUtil.haversine(request.startLocation().latitude(), request.startLocation().longitude(),
+                request.endLocation().latitude(), request.endLocation().longitude()) > 30;
     }
 }

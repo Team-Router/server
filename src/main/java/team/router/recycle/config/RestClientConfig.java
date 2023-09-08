@@ -2,13 +2,13 @@ package team.router.recycle.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Configuration
-public class WebClientConfig {
+public class RestClientConfig {
 
     @Bean
-    public WebClient webClient() {
-        return WebClient.builder().build();
+    public RestClient restClient() {
+        return RestClient.create();
     }
 }

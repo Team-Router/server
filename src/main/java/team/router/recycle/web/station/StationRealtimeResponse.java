@@ -1,9 +1,7 @@
 package team.router.recycle.web.station;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import lombok.Builder;
 
-@Builder
 public record StationRealtimeResponse(
         @JsonAlias({"stationName", "name"})
         String name,

@@ -155,8 +155,7 @@ class FavoriteStationServiceTest {
     }
 
     private Station createStation(String stationId) {
-        Station station = Station.builder()
-                .stationId(stationId).build();
+        Station station = new Station(stationId);
         return stationRepository.saveAndFlush(station);
     }
 }

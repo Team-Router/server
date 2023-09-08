@@ -3,21 +3,17 @@ package team.router.recycle.domain.route;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Component
 public class RouteClient {
     private static final String GEOJSON = "?geometries=geojson";
     private static final String ACCESS = "&access_token=";
-    private final WebClient client;
+    private final RestClient client;
     private final String MAPBOX_API_KEY;
 
-    public RouteClient(WebClient client, @Value("${client.mapbox.key}") String MAPBOX_API_KEY) {
+    public RouteClient(RestClient client, @Value("${client.mapbox.key}") String MAPBOX_API_KEY) {
         this.client = client.mutate().baseUrl("https://api.mapbox.com/directions/v5/mapbox/")
-                .exchangeStrategies(ExchangeStrategies.builder()
-                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(16 * 1024 * 1024)).build()
-                )
                 .build();
         this.MAPBOX_API_KEY = MAPBOX_API_KEY;
     }
@@ -26,7 +22,6 @@ public class RouteClient {
         return client.get()
                 .uri(profile + coordinate + GEOJSON + ACCESS + MAPBOX_API_KEY)
                 .retrieve()
-                .bodyToMono(String.class)
-                .block();
+                .body(String.class);
     }
 }

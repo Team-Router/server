@@ -11,6 +11,7 @@ import team.router.recycle.domain.station.Station;
 import team.router.recycle.domain.station.StationService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
+import team.router.recycle.web.favorite_station.FavoriteStationResponse;
 import team.router.recycle.web.favorite_station.FavoriteStationsResponse;
 
 import java.util.List;
@@ -23,17 +24,14 @@ public class FavoriteStationService {
 
     private final FavoriteStationRepository favoriteStationRepository;
     private final MemberService memberService;
-    private final StationService stationService;
+    private final List<StationService> stationServices;
 
     @Transactional
     public void addFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);
 
-        FavoriteStation favoriteStation = FavoriteStation.builder()
-                .member(member)
-                .stationId(stationId)
-                .build();
+        FavoriteStation favoriteStation = FavoriteStation.of(stationId, member);
 
         if (favoriteStationRepository.existsByStationIdAndMemberId(stationId, memberId)) {
             throw new RecycleException(ErrorCode.ALREADY_REGISTERED_FAVORITE, favoriteStation.getStationId() + "는 이미 즐겨찾기에 추가된 대여소입니다.");
@@ -44,9 +42,12 @@ public class FavoriteStationService {
     }
 
     private void validate(String stationId) {
-        if (stationService.isInvalid(stationId)) {
-            throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "해당 대여소가 존재하지 않습니다.");
+        for (StationService stationService : stationServices) {
+            if (stationService.isValid(stationId)) {
+                return;
+            }
         }
+        throw new RecycleException(ErrorCode.STATION_NOT_FOUND, stationId + "는 존재하지 않는 대여소입니다.");
     }
 
     @Transactional
@@ -66,12 +67,10 @@ public class FavoriteStationService {
     @Cacheable(key = "#memberId")
     public FavoriteStationsResponse findAllFavoriteStationByMemberId(Long memberId) {
         List<Station> stations = favoriteStationRepository.findAllByMemberId(memberId);
-        return FavoriteStationsResponse.builder()
-                .count(stations.size())
-                .favoriteStationResponses(
-                        stations.stream()
-                                .map(Station::toFavoriteStationResponse)
-                                .collect(Collectors.toList()))
-                .build();
+        return FavoriteStationsResponse.of(
+                stations.size(),
+                stations.stream()
+                        .map(FavoriteStationResponse::from)
+                        .collect(Collectors.toList()));
     }
 }

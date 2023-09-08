@@ -4,13 +4,10 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import team.router.recycle.web.favorite_station.FavoriteStationResponse;
 
 @Entity
-@Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,14 +34,8 @@ public class Station {
     @JsonAlias({"stationId", "id"})
     private String stationId;
 
-    // to FavoriteStationResponse
-    public FavoriteStationResponse toFavoriteStationResponse() {
-        return FavoriteStationResponse.builder()
-                .name(stationName)
-                .latitude(stationLatitude)
-                .longitude(stationLongitude)
-                .id(stationId)
-                .build();
+    public Station(String stationId) {
+        this.stationId = stationId;
     }
 
     public String toLocationString() {

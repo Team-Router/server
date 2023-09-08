@@ -25,9 +25,6 @@ public class RequestOauthService {
         String accessToken = oAuthClient.getOauthAccessToken(oauthLoginRequest);
         OauthProfileResponse oauthProfile = oAuthClient.getOauthProfile(accessToken);
 
-        return OauthInfo.builder()
-                .email(oauthProfile.getEmail())
-                .type(oauthLoginRequest.memberType())
-                .build();
+        return OauthInfo.of(oauthProfile.getEmail(), oauthLoginRequest.memberType());
     }
 }

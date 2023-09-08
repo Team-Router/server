@@ -32,10 +32,7 @@ public class OauthMemberService {
     }
 
     private Member newMember(OauthInfo oauthInfo) {
-        Member member = Member.builder()
-                .type(oauthInfo.type())
-                .email(oauthInfo.email())
-                .build();
+        Member member = Member.from(oauthInfo);
 
         return memberService.save(member);
     }

@@ -2,7 +2,6 @@ package team.router.recycle.web.route;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Builder;
 import team.router.recycle.domain.route.model.Distance;
 import team.router.recycle.domain.route.model.Duration;
 import team.router.recycle.domain.route.model.Location;
@@ -11,7 +10,6 @@ import team.router.recycle.domain.route.model.RoutingProfile;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Builder
 public record GetDirectionResponse(
         RoutingProfile routingProfile,
         Duration duration,
@@ -28,12 +26,19 @@ public record GetDirectionResponse(
         return distance.meters();
     }
 
-    // empty response
-    public static final GetDirectionResponse EMPTY = GetDirectionResponse
-            .builder()
-            .routingProfile(null)
-            .duration(Duration.ZERO)
-            .distance(Distance.ZERO)
-            .locations(List.of())
-            .build();
+    public static GetDirectionResponse of(
+            RoutingProfile routingProfile,
+            Duration duration,
+            Distance distance,
+            List<Location> locations
+    ) {
+        return new GetDirectionResponse(routingProfile, duration, distance, locations);
+    }
+
+    public static final GetDirectionResponse EMPTY = GetDirectionResponse.of(
+            null,
+            Duration.ZERO,
+            Distance.ZERO,
+            List.of()
+    );
 }

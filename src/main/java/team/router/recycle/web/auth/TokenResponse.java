@@ -1,7 +1,9 @@
 package team.router.recycle.web.auth;
 
-import lombok.Builder;
+import java.util.Date;
 
-@Builder
 public record TokenResponse(String accessToken, String refreshToken, Long accessTokenExpiresIn) {
+    public static TokenResponse of(String accessToken, String refreshToken, Date accessTokenExpiresIn) {
+        return new TokenResponse(accessToken, refreshToken, accessTokenExpiresIn.getTime());
+    }
 }

@@ -58,11 +58,7 @@ public class TokenProvider {
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
-        return TokenResponse.builder()
-                .accessToken(accessToken)
-                .accessTokenExpiresIn(accessTokenExpiresIn.getTime())
-                .refreshToken(refreshToken)
-                .build();
+        return TokenResponse.of(accessToken, refreshToken, accessTokenExpiresIn);
     }
 
     public Authentication getAuthentication(String accessToken) {

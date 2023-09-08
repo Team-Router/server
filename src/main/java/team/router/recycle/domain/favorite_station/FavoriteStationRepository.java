@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface FavoriteStationRepository extends JpaRepository<FavoriteStation, Long> {
-    
+
     Optional<FavoriteStation> findFavoriteStationByStationIdAndMemberId(String stationId, Long memberId);
 
     @Query("SELECT s from Station s where s.stationId in (select f.stationId from FavoriteStation f where f.member.id = :memberId)")
