@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
@@ -21,7 +20,7 @@ import java.util.*;
 @Service("seoulStationService")
 @RequiredArgsConstructor
 public class SeoulStationService implements StationService {
-    private final RedisTemplate<String, Station> redisTemplate;
+    private final StationRedisService stationRedisService;
     private final StationRepository stationRepository;
     private final SeoulStationClient seoulStationClient;
     private final ObjectMapper objectMapper;
@@ -48,7 +47,7 @@ public class SeoulStationService implements StationService {
                     stationMap.put(node.get("stationId").asText(), station);
                 }
                 stationRepository.saveAll(stationList);
-                redisTemplate.opsForValue().multiSet(stationMap);
+                stationRedisService.multiSet(stationMap);
             } catch (JsonProcessingException e) {
                 throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
             }
@@ -124,8 +123,7 @@ public class SeoulStationService implements StationService {
      */
     @Override
     public Station findDestinationStation(Location location) {
-        List<Station> stations = redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
-        return stations.stream()
+        return stationRedisService.multiGet().stream()
                 .filter(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude()) <= 0.5)
                 .min(Comparator.comparingDouble(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "도착지 주변에 반납할 대여소가 없습니다."));

@@ -1,22 +1,20 @@
 package team.router.recycle.domain.station;
 
-import org.springframework.stereotype.Service;
 import team.router.recycle.domain.route.model.Location;
 
-@Service
-public class CityDeterminer {
-    public boolean isSameCity(Location startLocation, Location endLocation) {
+public final class CityDeterminer {
+    public static boolean isSameCity(Location startLocation, Location endLocation) {
         return determineCity(startLocation).equals(determineCity(endLocation));
     }
 
-    public City determineCity(Double latitude, Double longitude) {
+    public static City determineCity(Double latitude, Double longitude) {
         // Seoul의 범위에 속하는지 확인
         if (latitude > 37 && latitude < 38 && longitude > 126 && longitude < 127) {
             return City.SEOUL;
         }
 
         // Daejeon의 범위에 속하는지 확인
-        if (latitude > 36 && latitude < 37 && longitude > 127 && longitude < 128) {
+        if (latitude > 36.1643402 && latitude < 36.4969715 && longitude > 127.2701417 && longitude < 127.6108633) {
             return City.DAEJEON;
         }
 
@@ -26,7 +24,7 @@ public class CityDeterminer {
         return City.SEOUL;
     }
 
-    public City determineCity(Location location) {
+    public static City determineCity(Location location) {
         return determineCity(location.latitude(), location.longitude());
     }
 }

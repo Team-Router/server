@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.util.GeoUtil;
 import team.router.recycle.web.exception.ErrorCode;
@@ -20,7 +20,7 @@ import java.util.*;
 @Service("daejeonStationService")
 @RequiredArgsConstructor
 public class DaejeonStationService implements StationService {
-    private final RedisTemplate<String, Station> redisTemplate;
+    private final StationRedisService stationRedisService;
     private final StationRepository stationRepository;
     private final DaejeonStationClient daejeonStationClient;
     private final ObjectMapper objectMapper;
@@ -34,20 +34,21 @@ public class DaejeonStationService implements StationService {
             Map<String, Station> daejeonStationMap = new HashMap<>(daejeonJsonNode.size());
             for (JsonNode node : daejeonJsonNode) {
                 Station station = objectMapper.treeToValue(node, Station.class);
-                if (!isDaejeon(station.getStationLatitude(), station.getStationLongitude())) {
+                if (CityDeterminer.determineCity(station.getStationLatitude(), station.getStationLongitude()) != City.DAEJEON) {
                     continue;
                 }
                 daejeonStationList.add(station);
                 daejeonStationMap.put(station.getStationId(), station);
             }
             stationRepository.saveAll(daejeonStationList);
-            redisTemplate.opsForValue().multiSet(daejeonStationMap);
+            stationRedisService.multiSet(daejeonStationMap);
         } catch (JsonProcessingException e) {
             throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "타슈 API 서버가 응답하지 않습니다.");
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public StationsRealtimeResponse getRealtimeStation(StationRealtimeRequest stationRealtimeRequest) {
         double myLatitude = stationRealtimeRequest.latitude();
         double myLongitude = stationRealtimeRequest.longitude();
@@ -97,20 +98,10 @@ public class DaejeonStationService implements StationService {
 
     @Override
     public Station findDestinationStation(Location location) {
-        List<Station> stations = redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
-        return stations.stream()
+        return stationRedisService.multiGet().stream()
                 .filter(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude()) <= 0.5)
                 .min(Comparator.comparingDouble(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "도착지 주변에 반납할 대여소가 없습니다."));
-    }
-
-    public boolean isDaejeon(double lat, double lng) {
-        double MAX_LAT = 36.4969715; // 죽암휴게소
-        double MIN_LAT = 36.1643402; // 만인산농협
-        double MAX_LNG = 127.6108633; // 옥천선사공원
-        double MIN_LNG = 127.2701417; // 삽재교차로
-
-        return lat >= MIN_LAT && lat <= MAX_LAT && lng >= MIN_LNG && lng <= MAX_LNG;
     }
 
     @Override

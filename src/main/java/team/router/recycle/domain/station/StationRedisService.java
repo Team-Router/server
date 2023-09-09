@@ -5,6 +5,10 @@ import org.springframework.stereotype.Service;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 @Service
 public class StationRedisService {
 
@@ -18,5 +22,13 @@ public class StationRedisService {
         if (Boolean.FALSE.equals(redisTemplate.hasKey(stationId))) {
             throw new RecycleException(ErrorCode.STATION_NOT_FOUND, "존재하지 않는 대여소입니다.");
         }
+    }
+
+    public void multiSet(Map<String, Station> stationMap) {
+        redisTemplate.opsForValue().multiSet(stationMap);
+    }
+
+    public List<Station> multiGet() {
+        return redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
     }
 }
