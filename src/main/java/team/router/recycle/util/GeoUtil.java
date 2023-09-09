@@ -1,10 +1,10 @@
 package team.router.recycle.util;
 
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
-public class GeoUtil {
+public final class GeoUtil {
     // 지구의 반지름 (단위: km)
+    private GeoUtil() {
+    }
+
     private static final double RADIUS = 6371;
 
     public static double haversine(double lat1, double lon1, double lat2, double lon2) {

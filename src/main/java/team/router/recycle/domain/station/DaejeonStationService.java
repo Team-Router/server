@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,6 @@ public class DaejeonStationService implements StationService {
     private final StationRepository stationRepository;
     private final DaejeonStationClient daejeonStationClient;
     private final ObjectMapper objectMapper;
-    @Qualifier("stationRedisServiceImpl")
-    private final StationRedisService stationRedisService;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -105,16 +102,6 @@ public class DaejeonStationService implements StationService {
                 .filter(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude()) <= 0.5)
                 .min(Comparator.comparingDouble(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "도착지 주변에 반납할 대여소가 없습니다."));
-    }
-
-    @Override
-    public boolean isValid(String stationId) {
-        return stationRedisService.isValid(stationId);
-    }
-
-    @Override
-    public boolean isInvalid(String stationId) {
-        return stationRedisService.isInvalid(stationId);
     }
 
     public boolean isDaejeon(double lat, double lng) {
