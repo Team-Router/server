@@ -41,6 +41,13 @@ jobs:
       - run: echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
       - run: cat ./src/main/resources/application-prod.yml
 
+      # 경로가 시크릿에 저장되어 있음
+      - run: echo "${{ secrets.KEY_STORE_PATH }}" > ./src/main/resources/keystore.p12
+      # 시크릿에서 추출한 경로에서 keystore.p12 파일을 복사해서 현재 경로로 덮어 씀
+      - run: cp ${{ secrets.KEY_STORE_PATH }} ./src/main/resources/keystore.p12
+
+
+
       # (3) Gradle build (Test 제외)
       - name: Run chmod to make gradlew executable
         run: chmod +x ./gradlew
