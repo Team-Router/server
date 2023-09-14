@@ -12,9 +12,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import team.router.recycle.domain.jwt.JwtAccessDeniedHandler;
-import team.router.recycle.domain.jwt.JwtAuthenticationEntryPoint;
-import team.router.recycle.domain.jwt.JwtFilter;
+import team.router.recycle.domain.jwt.*;
 
 @RequiredArgsConstructor
 @Configuration
@@ -43,6 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/health").permitAll()
                         .requestMatchers("/member/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/favorite/**").hasAuthority("ROLE_USER")
                         .requestMatchers("/place/**").hasAuthority("ROLE_USER")
