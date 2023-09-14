@@ -26,13 +26,6 @@ public class SeoulStationService implements StationService {
     private final ObjectMapper objectMapper;
     private static final String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
 
-    /**
-     * 따릉이 API 서버에서 대여소 정보를 받아와서 DB와 Redis에 저장
-     * 타슈 API 서버에서 대여소 정보를 받아와서 DB와 Redis에 저장
-     *
-     * @param args incoming application arguments (unused)
-     * @throws RecycleException 따릉이 API 서버가 응답하지 않을 경우
-     */
     @Override
     public void run(ApplicationArguments args) {
         Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
@@ -44,7 +37,7 @@ public class SeoulStationService implements StationService {
                 for (JsonNode node : jsonNode) {
                     Station station = objectMapper.treeToValue(node, Station.class);
                     stationList.add(station);
-                    stationMap.put(node.get("stationId").asText(), station);
+                    stationMap.put(station.getStationId(), station);
                 }
                 stationRepository.saveAll(stationList);
                 stationRedisService.multiSet(stationMap);
