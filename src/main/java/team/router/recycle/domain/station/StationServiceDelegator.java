@@ -17,17 +17,15 @@ import java.util.stream.Collectors;
 @Component
 public class StationServiceDelegator {
     private final Map<City, StationService> services;
-    private final CityDeterminer cityDeterminer;
 
     @Autowired
-    public StationServiceDelegator(List<StationService> stationServices, CityDeterminer cityDeterminer) {
-        this.cityDeterminer = cityDeterminer;
+    public StationServiceDelegator(List<StationService> stationServices) {
         this.services = stationServices.stream()
                 .collect(Collectors.toMap(StationService::handledCity, Function.identity()));
     }
 
     public StationService getStationServiceForLocation(Double latitude, Double longitude) {
-        City city = cityDeterminer.determineCity(latitude, longitude);
+        City city = CityDeterminer.determineCity(latitude, longitude);
         StationService service = services.get(city);
 
         if (service == null) {
@@ -45,7 +43,7 @@ public class StationServiceDelegator {
         Location startLocation = request.startLocation();
         Location endLocation = request.endLocation();
 
-        if (!cityDeterminer.isSameCity(startLocation, endLocation)) {
+        if (!CityDeterminer.isSameCity(startLocation, endLocation)) {
             throw new RecycleException(ErrorCode.BAD_REQUEST, "출발지와 도착지가 같은 지역이 아닙니다.");
         }
 

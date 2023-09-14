@@ -2,13 +2,14 @@ package team.router.recycle.domain.favorite_station;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.member.Member;
 import team.router.recycle.domain.member.MemberService;
 import team.router.recycle.domain.station.Station;
-import team.router.recycle.domain.station.StationService;
+import team.router.recycle.domain.station.StationRedisService;
 import team.router.recycle.web.exception.ErrorCode;
 import team.router.recycle.web.exception.RecycleException;
 import team.router.recycle.web.favorite_station.FavoriteStationResponse;
@@ -24,9 +25,10 @@ public class FavoriteStationService {
 
     private final FavoriteStationRepository favoriteStationRepository;
     private final MemberService memberService;
-    private final List<StationService> stationServices;
+    private final StationRedisService stationRedisService;
 
     @Transactional
+    @CacheEvict(key = "#memberId")
     public void addFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);
@@ -42,15 +44,11 @@ public class FavoriteStationService {
     }
 
     private void validate(String stationId) {
-        for (StationService stationService : stationServices) {
-            if (stationService.isValid(stationId)) {
-                return;
-            }
-        }
-        throw new RecycleException(ErrorCode.STATION_NOT_FOUND, stationId + "는 존재하지 않는 대여소입니다.");
+        stationRedisService.isValid(stationId);
     }
 
     @Transactional
+    @CacheEvict(key = "#memberId")
     public void deleteFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);

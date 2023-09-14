@@ -7,7 +7,7 @@ import team.router.recycle.domain.route.model.Location;
 import team.router.recycle.web.station.StationRealtimeRequest;
 import team.router.recycle.web.station.StationsRealtimeResponse;
 
-public interface StationService extends ApplicationRunner, StationRedisService {
+public interface StationService extends ApplicationRunner {
     @Override
     void run(ApplicationArguments args);
 

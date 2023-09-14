@@ -4,9 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import team.router.recycle.domain.route.model.Location;
@@ -22,21 +20,12 @@ import java.util.*;
 @Service("seoulStationService")
 @RequiredArgsConstructor
 public class SeoulStationService implements StationService {
-    private final RedisTemplate<String, Station> redisTemplate;
+    private final StationRedisService stationRedisService;
     private final StationRepository stationRepository;
     private final SeoulStationClient seoulStationClient;
     private final ObjectMapper objectMapper;
-    @Qualifier("stationRedisServiceImpl")
-    private final StationRedisService stationRedisService;
     private static final String[] TARGET_LIST = {"/1/1000", "/1001/2000", "/2001/3000"};
 
-    /**
-     * 따릉이 API 서버에서 대여소 정보를 받아와서 DB와 Redis에 저장
-     * 타슈 API 서버에서 대여소 정보를 받아와서 DB와 Redis에 저장
-     *
-     * @param args incoming application arguments (unused)
-     * @throws RecycleException 따릉이 API 서버가 응답하지 않을 경우
-     */
     @Override
     public void run(ApplicationArguments args) {
         Arrays.stream(TARGET_LIST).parallel().forEach(target -> {
@@ -48,10 +37,10 @@ public class SeoulStationService implements StationService {
                 for (JsonNode node : jsonNode) {
                     Station station = objectMapper.treeToValue(node, Station.class);
                     stationList.add(station);
-                    stationMap.put(node.get("stationId").asText(), station);
+                    stationMap.put(station.getStationId(), station);
                 }
                 stationRepository.saveAll(stationList);
-                redisTemplate.opsForValue().multiSet(stationMap);
+                stationRedisService.multiSet(stationMap);
             } catch (JsonProcessingException e) {
                 throw new RecycleException(ErrorCode.SERVICE_UNAVAILABLE, "따릉이 API 서버가 응답하지 않습니다.");
             }
@@ -127,21 +116,10 @@ public class SeoulStationService implements StationService {
      */
     @Override
     public Station findDestinationStation(Location location) {
-        List<Station> stations = redisTemplate.opsForValue().multiGet(Objects.requireNonNull(redisTemplate.keys("*")));
-        return stations.stream()
+        return stationRedisService.multiGet().stream()
                 .filter(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude()) <= 0.5)
                 .min(Comparator.comparingDouble(station -> GeoUtil.haversine(location.latitude(), location.longitude(), station.getStationLatitude(), station.getStationLongitude())))
                 .orElseThrow(() -> new RecycleException(ErrorCode.STATION_NOT_FOUND, "도착지 주변에 반납할 대여소가 없습니다."));
-    }
-
-    @Override
-    public boolean isValid(String stationId) {
-        return stationRedisService.isValid(stationId);
-    }
-
-    @Override
-    public boolean isInvalid(String stationId) {
-        return stationRedisService.isInvalid(stationId);
     }
 
     @Override
