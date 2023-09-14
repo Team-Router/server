@@ -2,6 +2,7 @@ package team.router.recycle.domain.favorite_place;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class FavoritePlaceService {
     private final MemberService memberService;
 
     @Transactional
+    @CacheEvict(key = "#memberId")
     public void addFavoritePlace(Long memberId, FavoritePlaceRequest request) {
         Member member = memberService.getById(memberId);
         String name = request.name();
@@ -48,6 +50,7 @@ public class FavoritePlaceService {
     }
 
     @Transactional
+    @CacheEvict(key = "#memberId")
     public void deleteFavoritePlace(Long memberId, Long favoritePlaceId) {
         FavoritePlace favoritePlace = favoritePlaceRepository.findById(favoritePlaceId).orElseThrow(
                 () -> new RecycleException(ErrorCode.FAVORITE_NOT_FOUND, "즐겨찾기에 등록되지 않은 장소입니다.")

@@ -2,6 +2,7 @@ package team.router.recycle.domain.favorite_station;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class FavoriteStationService {
     private final StationRedisService stationRedisService;
 
     @Transactional
+    @CacheEvict(key = "#memberId")
     public void addFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);
@@ -46,6 +48,7 @@ public class FavoriteStationService {
     }
 
     @Transactional
+    @CacheEvict(key = "#memberId")
     public void deleteFavoriteStation(String stationId, Long memberId) {
         validate(stationId);
         Member member = memberService.getById(memberId);
