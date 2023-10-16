@@ -1,7 +1,8 @@
 spring:
-  h2:
-    console:
-      enabled: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -37,3 +38,5 @@ client:
     key: pk.eyJ1IjoiaHl1bnNlb2tjaGVvbmciLCJhIjoiY2xpZHZvc3ptMDIweDNqbzA4b2ljeGhjMiJ9.0iw5JNcWKW4cbFAezMrHSw
   seoul:
     key: /5473736b67687975343450566e4455
+  daejeon:
+    key: 0use619k0u82ct69
